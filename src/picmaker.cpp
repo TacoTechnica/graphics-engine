@@ -6,13 +6,14 @@
 
 #include<math.h>
 
+// This is what a pixel is made of.
 struct Pixel {
-    char r;
-    char g;
-    char b;
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
 };
 
-
+// This image holds pixels
 class Image {
     private:
         int width;
@@ -42,6 +43,7 @@ Image::~Image() {
     free(pixels);
 }
 
+// Takes an image and writes it to a PPM File
 void Image::writeToPPM(Image *img, const char* name) {
     int fd = open(name, O_CREAT | O_WRONLY, 0644);
 
@@ -54,8 +56,8 @@ void Image::writeToPPM(Image *img, const char* name) {
     // Fill the rest of the image with pixel data
     char pixel_buffer[12]; // 12 is the maximum size (ex. "255 255 255 ")
     int xx, yy;
-    for(xx = 0; xx < img->getWidth(); xx++) {
-        for(yy = 0; yy < img->getHeight(); yy++) {
+    for(yy = 0; yy < img->getHeight(); yy++) {
+        for(xx = 0; xx < img->getWidth(); xx++) {
             struct Pixel *currentPixel = img->getPixel(xx, yy);
             sprintf(pixel_buffer, "%d %d %d ", 
                     currentPixel->r, 
@@ -68,27 +70,96 @@ void Image::writeToPPM(Image *img, const char* name) {
 }
 
 
-int main() {
-    Image img(32,32);
+// Utility function: Returns random number from 0 to n
+double randi(double n) {
+    return n * (double)rand() / (double)RAND_MAX;
+}
 
+// Nice static filter
+void static_filter(struct Pixel *pixel, double mix) {
+    pixel->r = pixel->r * (1.0 - mix) + randi(255)*mix;
+    pixel->g = pixel->g * (1.0 - mix) + randi(255)*mix;
+    pixel->b = pixel->b * (1.0 - mix) + randi(255)*mix;
+}
+
+// Tries to draw a circle-ish gradient at that point
+void try_circle_ish(struct Pixel *pixel, int x, int y, int circle_x, int circle_y) {
+    double distSqr = 0.5*(x-circle_x)*(x-circle_x) + (y-circle_y)*(y-circle_y);
+    distSqr = pow(distSqr,0.5);
+    double r = 2;
+    double intensity = (r - distSqr)/r;
+    if (intensity < 0) return;
+    pixel->r = 255 * intensity;
+    pixel->g = 125 * intensity;
+    pixel->b = 125 * intensity;
+}
+
+
+// Temporary. This is the plane that's on the ground (checkerboard pattern)
+void get_plane_col(struct Pixel *pixel, int x, int y, double distance_squared) {
+    // Distance squared adds a fog effect
+    double dist_fact = pow(distance_squared / 100000.0, 0.2);
+    dist_fact = fmax(fmin(1.0 - dist_fact, 1), 0);
+
+    if (((int)(x/10) + (int)(y/10)) % 2 == 0) {
+        pixel->r = 175;
+        pixel->g = 90;
+        pixel->b = 90;
+    } else {
+        pixel->r = 90;
+        pixel->g = 90;
+        pixel->b = 175;
+    }
+
+    pixel->r *= dist_fact;
+    pixel->g *= dist_fact;
+    pixel->b *= dist_fact;
+}
+
+// Bad math. Supposed to mimic perspective, but it failed. I forget how perspective works...
+void ray_cast_ish(struct Pixel *pixel, double height, double thetaX, double thetaY) {
+    // If we're not looking at the plane (above the horizon)
+    if (thetaY <= 0) {
+        pixel->r = 0;
+        pixel->g = 0;
+        pixel->b = 0;
+        return;
+    }
+
+    // Makes it wobbly in the X axis
+    thetaX += randi(M_PI/24);
+
+    double angle_y_down = M_PI/2 - thetaY;
+    double y = height * tan(angle_y_down);
+    double x = y * tan(thetaX);
+
+    get_plane_col( pixel, (int)x, (int)y, y*y+x*x+height*height );
+}
+
+int main() {
+    Image img(320,320);
+
+    double cam_fov_w = 200.0 * M_PI/180.0;
+    double cam_fov_h = 80.0 * M_PI/180.0;
+
+    // Grab every pixel from the image and change it
     int xx, yy;
     for(xx = 0; xx < img.getWidth(); xx++) {
         for(yy = 0; yy < img.getHeight(); yy++) {
             struct Pixel *currentPixel = img.getPixel(xx, yy);
+            double w = img.getWidth();
+            double h = img.getHeight();
 
-            int dx = xx - img.getWidth()/2;
-            int dy = yy - img.getHeight()/2;
-            double distanceSqr = dx*dx + dy*dy;
-            int val = fmax(fmin( (int) (distanceSqr), 255 ), 0);
-
-            currentPixel->r = 255 - val;
-            currentPixel->g = 125;
-            currentPixel->b = 125;
+            double thetaX = cam_fov_w * ((double)xx - w/2)/w;
+            double thetaY = cam_fov_h * ((double)yy - h/2)/h;
+            ray_cast_ish(currentPixel, 10, thetaX, thetaY);
+            try_circle_ish(currentPixel, xx, yy, (int)w/2 - 10, (int)h / 2);
+            try_circle_ish(currentPixel, xx, yy, (int)w/2, (int)h / 2);
+            static_filter(currentPixel, 0.1);
         }
     }
 
-    printf("Image: %dx%d\n", img.getWidth(), img.getHeight());
-    Image::writeToPPM(&img, "hi.ppm");
+    Image::writeToPPM(&img, "sp00k.ppm");
 
     return 0;
 }
