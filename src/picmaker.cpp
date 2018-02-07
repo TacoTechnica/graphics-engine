@@ -111,9 +111,11 @@ void get_plane_col(struct Pixel *pixel, int x, int y, double distance_squared) {
         pixel->b = 175;
     }
 
+    /*
     pixel->r *= dist_fact;
     pixel->g *= dist_fact;
     pixel->b *= dist_fact;
+    */
 }
 
 // Bad math. Supposed to mimic perspective, but it failed. I forget how perspective works...
@@ -127,20 +129,25 @@ void ray_cast_ish(struct Pixel *pixel, double height, double thetaX, double thet
     }
 
     // Makes it wobbly in the X axis
-    thetaX += randi(M_PI/24);
+    //thetaX += randi(M_PI/24);
 
-    double angle_y_down = M_PI/2 - thetaY;
-    double y = height * tan(angle_y_down);
-    double x = y * tan(thetaX);
+    double r = height * tan(M_PI/2 - thetaY);
+    double y = r * cos(thetaX);
+    double x = r * sin(thetaX);
 
+    //double y = height * tan(M_PI/2 - thetaY);
+    //double x = y * tan(thetaX);
+    //y / tan(M_PI/2 - thetaX);
     get_plane_col( pixel, (int)x, (int)y, y*y+x*x+height*height );
 }
 
 int main() {
     Image img(320,320);
 
-    double cam_fov_w = 200.0 * M_PI/180.0;
-    double cam_fov_h = 80.0 * M_PI/180.0;
+    double cam_fov_w = 90.0 * M_PI/180.0;
+    double cam_fov_h = 90.0 * M_PI/180.0;
+
+    double projection_plane_distance = img.getWidth() / (2.0 * tan(cam_fov_w / 2.0));
 
     // Grab every pixel from the image and change it
     int xx, yy;
@@ -150,11 +157,12 @@ int main() {
             double w = img.getWidth();
             double h = img.getHeight();
 
-            double thetaX = cam_fov_w * ((double)xx - w/2)/w;
-            double thetaY = cam_fov_h * ((double)yy - h/2)/h;
-            ray_cast_ish(currentPixel, 10, thetaX, thetaY);
-            try_circle_ish(currentPixel, xx, yy, (int)w/2 - 10, (int)h / 2);
-            try_circle_ish(currentPixel, xx, yy, (int)w/2, (int)h / 2);
+            double thetaX = M_PI/4.0 + atan((double)xx / projection_plane_distance);//cam_fov_w * ((double)xx - w/2)/w;
+            double thetaY = atan((double)yy / projection_plane_distance);//cam_fov_h * ((double)yy - h/2)/h;
+            //printf("(%f, %f)\n", thetaX, thetaY);
+            ray_cast_ish(currentPixel, 40, thetaX, thetaY);
+            //try_circle_ish(currentPixel, xx, yy, (int)w/2 - 10, (int)h / 2);
+            //try_circle_ish(currentPixel, xx, yy, (int)w/2, (int)h / 2);
             static_filter(currentPixel, 0.1);
         }
     }
