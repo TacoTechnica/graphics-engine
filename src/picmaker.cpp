@@ -190,7 +190,7 @@ int main() {
     char letters[64895]; // Should use stat to grab file size, but I'm lazy
 
     printf("reading and opening file...\n");
-    int fd = open("res/utah-teapot.obj", O_RDONLY);
+    int fd = open("res/utah-teapot.objfile", O_RDONLY);
     read(fd, letters, sizeof(letters));
 
     close(fd);
@@ -204,8 +204,6 @@ int main() {
     while( (current_string = strtok(NULL, " ")) != NULL ) {
 
         coords[index] = atof(current_string);
-        printf("current float: %lf\n", coords[index]);
-
         index++;
     }
 
@@ -219,7 +217,7 @@ int main() {
     }
     */
 
-    Image::writeToPPM(&img, "sp00k.ppm");
+    Image::writeToPPM(&img, "pot.ppm");
 
     return 0;
 }

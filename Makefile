@@ -29,7 +29,7 @@ bin_dir_exists:
 
 run: all
 	./$(PROGRAM_NAME)
-	display sp00k.ppm
+	display pot.ppm
 clean:
 	rm -f $(PROGRAM_NAME)
 	rm -rf $(BIN_DIR)
