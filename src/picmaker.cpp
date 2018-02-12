@@ -73,7 +73,7 @@ void plot(Image *img, int x, int y, struct Pixel *color) {
     memcpy(img->getPixel(x,y), color, sizeof(struct Pixel));
 }
 
-// TODO: Test Octant 2
+
 void draw_line(Image *img, int x0, int y0, int x1, int y1, struct Pixel *color) {
     // swapping
     int swap;
@@ -150,17 +150,74 @@ void draw_line(Image *img, int x0, int y0, int x1, int y1, struct Pixel *color) 
     }
 }
 
+void draw_object_ish(Image *img, float *coordinates, int size, int px, int py, struct Pixel *color) {
+    float SCALE_FACTOR = 7;
+    int coordinate_size = size / 3;
+    int i;
+
+    while(i < coordinate_size) {
+        float x = coordinates[3*i];
+        float y = -1 * coordinates[3*i + 1];
+        float z = coordinates[3*i + 2];
+
+        int real_x = (int) (x * SCALE_FACTOR + px);
+        int real_y = (int) (y * SCALE_FACTOR + py);
+
+        i++;
+
+        float xN = coordinates[3*i];
+        float yN = -1 * coordinates[3*i + 1];
+        float zN = coordinates[3*i + 2];
+
+        int real_xN = (int) (xN * SCALE_FACTOR + px);
+        int real_yN = (int) (yN * SCALE_FACTOR + py);
+
+        i++;
+
+        draw_line(img, real_x, real_y, real_xN, real_yN, color);
+    }
+}
+
 
 int main() {
-    Image img(320,320);
+    Image img(420,320);
 
     struct Pixel p = {255, 255, 255};
 
+    // Das a lot of space, kinda arbitrary
+    float coords[64895 / 20];
+    
+    char letters[64895]; // Should use stat to grab file size, but I'm lazy
+
+    printf("reading and opening file...\n");
+    int fd = open("res/utah-teapot.obj", O_RDONLY);
+    read(fd, letters, sizeof(letters));
+
+    close(fd);
+
+    printf("Done reading file, now storing data...\n");
+
+    char *current_string;
+    int index = 0;
+    // Get rid of the V at the beginning and start the split chain
+    strtok(letters, " ");
+    while( (current_string = strtok(NULL, " ")) != NULL ) {
+
+        coords[index] = atof(current_string);
+        printf("current float: %lf\n", coords[index]);
+
+        index++;
+    }
+
+    draw_object_ish(&img, coords, index, img.getWidth() / 2, img.getHeight() / 2, &p);
+
+    /*
     double theta;
     double r = 100.0;
     for(theta = 0; theta <= 2.0 * 3.1415; theta += 3.1415 / 10) {
         draw_line(&img, 150, 150, 150 + (int)(r * cos(theta)), 150 + (int)(r * sin(theta)), &p);
     }
+    */
 
     Image::writeToPPM(&img, "sp00k.ppm");
 
