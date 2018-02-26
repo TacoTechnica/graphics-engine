@@ -3,221 +3,122 @@
 #include<fcntl.h>
 #include<stdlib.h>
 #include<string.h>
-
 #include<math.h>
 
-// This is what a pixel is made of.
-struct Pixel {
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-};
-
-// This image holds pixels
-class Image {
-    private:
-        int width;
-        int height;
-        int pixel_resolution; // 255 by default
-        struct Pixel *pixels;
-    public:
-        Image(int width, int height, int pixel_resolution = 255) {
-            this->width = width;
-            this->height = height;
-            this->pixel_resolution = pixel_resolution;
-            pixels = (struct Pixel*)calloc(width*height, sizeof(struct Pixel)); 
-            // ^ calloc because we want our image to start empty
-        }
-        ~Image();
-
-        int getWidth() {return width;}
-        int getHeight() {return height;}
-        int getPixelResolution() {return pixel_resolution;}
-        struct Pixel *getPixels() { return pixels; }
-        struct Pixel *getPixel(int x, int y) { return &pixels[x + y*width]; }
-
-        static void writeToPPM(Image *img, const char* name);
-};
-
-Image::~Image() {
-    free(pixels);
-}
-
-// Takes an image and writes it to a PPM File
-void Image::writeToPPM(Image *img, const char* name) {
-    int fd = open(name, O_CREAT | O_WRONLY, 0644);
-
-    // Place header at top of image
-    char header[16];
-    sprintf(header, "P3\n%d %d\n%d\n", img->getWidth(), img->getHeight(), img->getPixelResolution());
-    write(fd, header, strlen(header));
-    
-
-    // Fill the rest of the image with pixel data
-    char pixel_buffer[12]; // 12 is the maximum size (ex. "255 255 255 ")
-    int xx, yy;
-    for(yy = 0; yy < img->getHeight(); yy++) {
-        for(xx = 0; xx < img->getWidth(); xx++) {
-            struct Pixel *currentPixel = img->getPixel(xx, yy);
-            sprintf(pixel_buffer, "%d %d %d ", 
-                    currentPixel->r, 
-                    currentPixel->g,
-                    currentPixel->b
-                    );
-            write(fd, pixel_buffer, strlen(pixel_buffer));
-        }
-    }
-}
-
-void plot(Image *img, int x, int y, struct Pixel *color) {
-    memcpy(img->getPixel(x,y), color, sizeof(struct Pixel));
-}
-
-
-void draw_line(Image *img, int x0, int y0, int x1, int y1, struct Pixel *color) {
-    // swapping
-    int swap;
-    if (x0 > x1) {
-        swap = x0;
-        x0 = x1;
-        x1 = swap;
-        swap = y0;
-        y0 = y1;
-        y1 = swap;
-    }
-
-    int dx = x1 - x0;
-    int dy = y1 - y0;
-    int a = dy; // TODO: You can remove a and b...
-    int b = -dx;
-    int d;
-
-    if (dy >= 0) { // Quadrant 1 and 3
-        // Octant 1 and 5
-        if (dy <= dx) {
-            d = 2*a + b;
-            while(x0 <= x1) {
-                plot(img, x0, y0, color);
-                if (d > 0) {
-                    y0++;
-                    d += 2*b;
-                }
-                x0++;
-                d += 2*a;
-            }
-        // Octant 2 and 6
-        } else {
-            d = a + 2*b;
-            while(y0 <= y1) {
-                plot(img, x0, y0, color);
-                if (d < 0) {
-                    x0++;
-                    d += 2*a;
-                }
-                y0++;
-                d += 2*b;
-            }
-            
-        }
-        return;
-    } else { // Quadrant 2 and 4 
-        // Octant 4 and 8
-        if (-dy <= dx) {
-            d = -2*a + b;
-            while(x0 <= x1) {
-                plot(img, x0, y0, color);
-                if (d > 0) {
-                    y0--;
-                    d += 2*b;
-                }
-                x0++;
-                d -= 2*a;
-            }
-        // Octant 2 and 6
-        } else {
-            d = -a + 2*b;
-            while(y0 >= y1) {
-                plot(img, x0, y0, color);
-                if (d < 0) {
-                    x0++;
-                    d -= 2*a;
-                }
-                y0--;
-                d += 2*b;
-            }
-        }
-        return;
-    }
-}
-
-void draw_object_ish(Image *img, float *coordinates, int size, int px, int py, struct Pixel *color) {
-    float SCALE_FACTOR = 7;
-    int coordinate_size = size / 3;
-    int i;
-
-    while(i < coordinate_size) {
-        float x = coordinates[3*i];
-        float y = -1 * coordinates[3*i + 1];
-        float z = coordinates[3*i + 2];
-
-        int real_x = (int) (x * SCALE_FACTOR + px);
-        int real_y = (int) (y * SCALE_FACTOR + py);
-
-        i++;
-
-        float xN = coordinates[3*i];
-        float yN = -1 * coordinates[3*i + 1];
-        float zN = coordinates[3*i + 2];
-
-        int real_xN = (int) (xN * SCALE_FACTOR + px);
-        int real_yN = (int) (yN * SCALE_FACTOR + py);
-
-        i++;
-
-        draw_line(img, real_x, real_y, real_xN, real_yN, color);
-    }
-}
-
+#include "image.h"
+#include "renderer.h"
+#include "edgebuffer.h"
+#include "matrix.h"
 
 int main() {
-    Image img(420,320);
-
-    struct Pixel p = {255, 255, 255};
-
-    // Das a lot of space, kinda arbitrary
-    float coords[64895 / 20];
     
-    char letters[64895]; // Should use stat to grab file size, but I'm lazy
+    
+    /*float f_mat[] =
+        {1, 2, 3,
+         4, 5, 6,
+         7, 8, 9,
+         1, 1, 1};
+
+    float f_transform[] =
+        {1, 0, 0, 1,
+         0, 1, 0, 0,
+         0, 0, 1, 0,
+         0, 0, 0, 1};
+
+    Matrix mat1(3, 4, f_mat);
+    Matrix transform(4, 4, f_transform);
+
+
+    printf("TRANSFORM: \n");
+    transform.print();
+    printf("MAT: \n");
+    mat1.print();
+
+    mat1.multiply(&transform);
+
+    printf("MAT AFTER: \n");
+    mat1.print();
+    */
+
+    Image img(440, 320);
+    Renderer renderer(&img);
+    EdgeBuffer *buffer = new EdgeBuffer();;
+
+    char letters[80720]; // Should use stat to grab file size, but I'm lazy
 
     printf("reading and opening file...\n");
-    int fd = open("res/utah-teapot.objfile", O_RDONLY);
-    read(fd, letters, sizeof(letters));
 
-    close(fd);
+    int fd = open("res/Banana.objfile", O_RDONLY);
+
+    read(fd, letters, sizeof(letters));
 
     printf("Done reading file, now storing data...\n");
 
     char *current_string;
     int index = 0;
-    // Get rid of the V at the beginning and start the split chain
+    float coord[3];
+
+    // Get rid of the "v" at the beginning and start the split chain
     strtok(letters, " ");
+    //int counter = 0;
     while( (current_string = strtok(NULL, " ")) != NULL ) {
+        //if (counter > 5) break;
 
-        coords[index] = atof(current_string);
+        coord[index] = atof(current_string);
         index++;
+        if (index == 3) {
+            float x = coord[0];
+            float y = coord[2];
+            float z = coord[1];
+            buffer->addPoint(x, y, z);
+            index = 0;
+        
+            //counter++;
+        }
     }
+    
+    //buffer->getPoints()->print();
 
-    draw_object_ish(&img, coords, index, img.getWidth() / 2, img.getHeight() / 2, &p);
+    // Center the banana
+    //buffer->translate(-150,180,0);
+    
+    // Scale up
+    //buffer->scale(2,2,0);
 
-    /*
-    double theta;
-    double r = 100.0;
-    for(theta = 0; theta <= 2.0 * 3.1415; theta += 3.1415 / 10) {
-        draw_line(&img, 150, 150, 150 + (int)(r * cos(theta)), 150 + (int)(r * sin(theta)), &p);
-    }
+    // Move to proper coordinate
+    //buffer->translate(200, 200, 0);
+
+    //buffer->getPoints()->print();
+
+    /* buffer->addEdge(100,100,0,
+                   200,200,0);
     */
+ 
+    // Center the banana to (0,0)
+    buffer->translate(-150,180,0);
 
-    Image::writeToPPM(&img, "pot.ppm");
+    // Now scale to our final size (2x)
+    buffer->scale(1.5,1.5,0);
+
+    // Move banana to starting position
+    buffer->translate(210, 160, 0);
+
+    int i;
+    for(i = 0; i < 20; i++) {
+
+        buffer->scale(1.01f,1.01f,0);
+    
+        unsigned char col = 255 * ((float)i / 20.0f);
+        struct Color p = {col, col, 0};
+        renderer.setColor(p);
+
+        renderer.drawEdgeBufferLines(buffer);
+    }
+
+
+    Image::writeToPPM(&img, "image.ppm");
+
+    delete buffer;    
 
     return 0;
 }

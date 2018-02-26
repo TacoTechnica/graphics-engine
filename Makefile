@@ -16,6 +16,8 @@ SRCS = $(wildcard $(call rwildcard, $(SRC_DIR), *.cpp))
 OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(BIN_DIR)/%.o, $(SRCS))
 
 all: bin_dir_exists $(PROGRAM_NAME)
+	./$(PROGRAM_NAME)
+	display *.ppm
 
 $(PROGRAM_NAME): $(HEADERS) $(OBJS)
 	$(CC) -o $@ $^ 
@@ -29,7 +31,7 @@ bin_dir_exists:
 
 run: all
 	./$(PROGRAM_NAME)
-	display pot.ppm
+	display *.ppm
 clean:
 	rm -f $(PROGRAM_NAME)
 	rm -rf $(BIN_DIR)

@@ -4,21 +4,22 @@
 
 class Matrix {
     private:
-        double **values;
+        float **values;
         int rows, columns;
         int lastcol;
-
     public:
         Matrix(int columns, int rows = 4);
+        Matrix(int columns, int rows, float *values1D);
         ~Matrix();
-        void identity();
         void multiply(Matrix *mat);
         void growColumns(int newColumns);
         void copyTo(Matrix *mat);
         void print();
-        double *get(int col, int row);
-        double getColumns() { return columns; }
-        double getRows() { return rows; }
+        float *get(int col, int row);
+        int getNumColumns() { return columns; }
+        int getNumRows() { return rows; }
+
+        static Matrix *createIdentityMatrix(int size);
 };
 
 #endif
