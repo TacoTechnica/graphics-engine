@@ -72,7 +72,7 @@ int main() {
             float z = coord[1];
             buffer->addPoint(x, y, z);
             index = 0;
-        
+
             //counter++;
         }
     }
@@ -96,13 +96,14 @@ int main() {
  
     // Center the banana to (0,0)
     buffer->translate(-150,180,0);
-
+    buffer->rotate_x(3.1415 / 2);
     // Now scale to our final size (2x)
     buffer->scale(1.5,1.5,0);
 
     // Move banana to starting position
-    buffer->translate(210, 160, 0);
+    buffer->translate(210, -160, 0);
 
+    /*
     int i;
     for(i = 0; i < 20; i++) {
 
@@ -113,7 +114,10 @@ int main() {
         renderer.setColor(p);
 
         renderer.drawEdgeBufferLines(buffer);
-    }
+    }*/
+    struct Color p = {255, 255, 0};
+    renderer.setColor(p);
+    renderer.drawEdgeBufferLines(buffer);
 
 
     Image::writeToPPM(&img, "image.ppm");

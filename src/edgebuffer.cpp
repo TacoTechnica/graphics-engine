@@ -1,5 +1,6 @@
 
-//#include<stdio.h>
+#include<math.h>
+
 #include "edgebuffer.h"
 
 EdgeBuffer::EdgeBuffer() {
@@ -56,4 +57,43 @@ void EdgeBuffer::scale(float sx, float sy, float sz) {
             0, 0, 0, 1
         };
     transform(trans_mat);
+}
+
+void EdgeBuffer::rotate_x(float theta) {
+    float c = cos(theta);
+    float s = sin(theta);
+    float trans_mat[] = {
+            s, c,  0, 0,
+            0, 0,  1, 0,
+            c, -s, 0, 0,
+            0, 0,  0, 1
+        };
+    transform(trans_mat);
+
+}
+
+void EdgeBuffer::rotate_y(float theta) {
+    float c = cos(theta);
+    float s = sin(theta);
+    float trans_mat[] = {
+            0, 0,  1, 0,
+            c, -s, 0, 0,
+            s, c,  0, 0,
+            0, 0,  0, 1
+        };
+    transform(trans_mat);
+}
+
+
+void EdgeBuffer::rotate_z(float theta) {
+    float c = cos(theta);
+    float s = sin(theta);
+    float trans_mat[] = {
+            c, -s, 0, 0,
+            s, c,  0, 0,
+            0, 0,  1, 0,
+            0, 0,  0, 1
+        };
+    transform(trans_mat);
+
 }

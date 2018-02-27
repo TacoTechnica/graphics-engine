@@ -103,9 +103,9 @@ void Renderer::drawEdgeBufferLines(EdgeBuffer *buffer) {
 
         drawLine( 
             *mat->get(col, 0),
-            *mat->get(col, 1),
+            -1 * *mat->get(col, 1),
             *mat->get(col+1, 0),
-            *mat->get(col+1, 1)
+            -1 * *mat->get(col+1, 1)
         );
     }
 }
