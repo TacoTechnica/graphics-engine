@@ -18,8 +18,8 @@ class Matrix {
         float *get(int col, int row);
         int getNumColumns() { return columns; }
         int getNumRows() { return rows; }
-
-        static Matrix *createIdentityMatrix(int size);
+        void fillWithIdentity();
+//        static Matrix *createIdentityMatrix(int size);
 };
 
 #endif

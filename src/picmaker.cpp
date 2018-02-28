@@ -94,14 +94,20 @@ int main() {
                    200,200,0);
     */
  
-    // Center the banana to (0,0)
-    buffer->translate(-150,180,0);
-    buffer->rotate_x(3.1415 / 2);
-    // Now scale to our final size (2x)
-    buffer->scale(1.5,1.5,0);
 
+    buffer->translate(200,200,0);
+    buffer->rotate_z(-20 * 3.1415 / 100);
+    buffer->translate(-150,180,0);
+    //buffer->rotate_x(3.1415 / 2);
+
+    // Now scale to our final size (2x)
+    //buffer->scale(1.5,1.5,0);
+    
     // Move banana to starting position
-    buffer->translate(210, -160, 0);
+    //buffer->translate(210, -160, 0);
+    // Center the banana to (0,0)
+
+    buffer->apply();
 
     /*
     int i;

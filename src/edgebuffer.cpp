@@ -5,11 +5,14 @@
 
 EdgeBuffer::EdgeBuffer() {
     points = new Matrix(0);
+    transform = new Matrix(4,4);
+    transformSetIdentity();
     pointCount = 0;
 }
 
 EdgeBuffer::~EdgeBuffer() {
     delete points;
+    delete transform;
 }
 
 void EdgeBuffer::addPoint(float x, float y, float z) {
@@ -26,15 +29,24 @@ void EdgeBuffer::addEdge(float x0, float y0, float z0, float x1, float y1, float
     addPoint(x1, y1, z1);
 }
 
-void EdgeBuffer::transform(Matrix *transform) {
+
+//void EdgeBuffer::transform(Matrix *transform) {
+//    points->multiply(transform);
+//}
+
+// Helper function for ease of use
+void EdgeBuffer::add_transform(float* trans_mat) {
+    Matrix *trans = new Matrix(4,4, trans_mat);
+    transform->multiply(trans);
+    delete trans;
+}
+
+void EdgeBuffer::apply() {
     points->multiply(transform);
 }
 
-// Helper function for ease of use
-void EdgeBuffer::transform(float* trans_mat) {
-    Matrix *trans = new Matrix(4,4, trans_mat);
-    transform(trans);
-    delete trans;
+void EdgeBuffer::transformSetIdentity() {
+    transform->fillWithIdentity();
 }
 
 void EdgeBuffer::translate(float dx, float dy, float dz) {
@@ -45,7 +57,7 @@ void EdgeBuffer::translate(float dx, float dy, float dz) {
             0, 0, 1, dz,
             0, 0, 0, 1
         };
-    transform(trans_mat);
+    add_transform(trans_mat);
 }
 
 void EdgeBuffer::scale(float sx, float sy, float sz) {
@@ -56,7 +68,7 @@ void EdgeBuffer::scale(float sx, float sy, float sz) {
             0, 0, sz, 0,
             0, 0, 0, 1
         };
-    transform(trans_mat);
+    add_transform(trans_mat);
 }
 
 void EdgeBuffer::rotate_x(float theta) {
@@ -68,7 +80,7 @@ void EdgeBuffer::rotate_x(float theta) {
             c, -s, 0, 0,
             0, 0,  0, 1
         };
-    transform(trans_mat);
+    add_transform(trans_mat);
 
 }
 
@@ -81,7 +93,7 @@ void EdgeBuffer::rotate_y(float theta) {
             s, c,  0, 0,
             0, 0,  0, 1
         };
-    transform(trans_mat);
+    add_transform(trans_mat);
 }
 
 
@@ -94,6 +106,6 @@ void EdgeBuffer::rotate_z(float theta) {
             0, 0,  1, 0,
             0, 0,  0, 1
         };
-    transform(trans_mat);
+    add_transform(trans_mat);
 
 }

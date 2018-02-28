@@ -5,7 +5,6 @@
 #include<stdlib.h>
 
 Matrix::Matrix(int columns, int rows) {
-    printf("Top level contstructor!\n");
     this->rows = rows;
     this->columns = columns;
     values = (float**) calloc( columns, sizeof(float *));
@@ -39,6 +38,7 @@ Matrix::~Matrix() {
     free(values);
 }
 
+/*
 Matrix *Matrix::createIdentityMatrix(int size) {
     Matrix *mat = new Matrix(size, size);
     int i;
@@ -47,14 +47,24 @@ Matrix *Matrix::createIdentityMatrix(int size) {
     }
     return mat;
 }
+*/
 
+void Matrix::fillWithIdentity() {
+    int col, row;
+    for(col = 0; col < columns; col++)
+        for(row = 0; row < rows; row++) {
+            if (col == row)
+                values[col][row] = 1;
+            else
+                values[col][row] = 0;
+        } 
+}
 
 void Matrix::multiply(Matrix *mat) {
     int col, row, m;
 
     Matrix *dup = new Matrix(columns, rows);
     copyTo(dup); // Need to copy since we're resetting the matrix as we go along
-    printf("size: (%d,%d)\n", columns, rows);
     for(col = 0; col < columns; col++) {
         for(row = 0; row < rows; row++) {
             *get(col,row) = 0;
