@@ -36,3 +36,4 @@ clean:
 	rm -f $(PROGRAM_NAME)
 	rm -rf $(BIN_DIR)
 	rm -f *.ppm
+	rm -f *.png
