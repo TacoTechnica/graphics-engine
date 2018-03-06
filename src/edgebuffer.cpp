@@ -98,9 +98,9 @@ void EdgeBuffer::rotate_y(float theta) {
             //c, -s, 0, 0,
             //s, c,  0, 0,
             //0, 0,  0, 1
-            c, 0, -s, 0,
+            c, 0, s, 0,
             0, 1, 0,  0,
-            s, 0, c,  0,
+            -s, 0, c,  0,
             0, 0, 0,  1
         };
     add_transform(trans_mat);
