@@ -10,6 +10,7 @@
  *      Plots a single pixel on our image
  */
 void Renderer::plot(int x, int y) {
+    y = getImage()->getHeight() - y;
     if (x >= 0 && y >= 0 && x < img->getWidth() && y < img->getHeight())
         memcpy(img->getPixel(x,y), &color, sizeof(struct Color));
 }
@@ -103,9 +104,9 @@ void Renderer::drawEdgeBufferLines(EdgeBuffer *buffer) {
 
         drawLine( 
             *mat->get(col, 0),
-            -1 * *mat->get(col, 1),
+            *mat->get(col, 1),
             *mat->get(col+1, 0),
-            -1 * *mat->get(col+1, 1)
+            *mat->get(col+1, 1)
         );
     }
 }

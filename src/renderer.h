@@ -15,6 +15,7 @@ class Renderer {
         void drawLine(int x0, int y0, int x1, int y1);
         void setColor(Color color) {this->color = color;}
         Color getColor() {return color;}
+        Image *getImage() {return img;}
 
         void drawEdgeBufferLines(EdgeBuffer *buffer);
 };

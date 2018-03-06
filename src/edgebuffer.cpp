@@ -1,4 +1,4 @@
-
+//#include<stdio.h>
 #include<math.h>
 
 #include "edgebuffer.h"
@@ -72,12 +72,17 @@ void EdgeBuffer::scale(float sx, float sy, float sz) {
 }
 
 void EdgeBuffer::rotate_x(float theta) {
+    theta *= M_PI / 180.0f;
     float c = cos(theta);
     float s = sin(theta);
     float trans_mat[] = {
-            s, c,  0, 0,
-            0, 0,  1, 0,
-            c, -s, 0, 0,
+            //s, c,  0, 0,
+            //0, 0,  1, 0,
+            //c, -s, 0, 0,
+            //0, 0,  0, 1
+            1, 0,  1, 0,
+            0, c,  s, 0,
+            0, -s, c, 0,
             0, 0,  0, 1
         };
     add_transform(trans_mat);
@@ -85,24 +90,30 @@ void EdgeBuffer::rotate_x(float theta) {
 }
 
 void EdgeBuffer::rotate_y(float theta) {
+    theta *= M_PI / 180.0f;
     float c = cos(theta);
     float s = sin(theta);
     float trans_mat[] = {
-            0, 0,  1, 0,
-            c, -s, 0, 0,
-            s, c,  0, 0,
-            0, 0,  0, 1
+            //0, 0,  1, 0,
+            //c, -s, 0, 0,
+            //s, c,  0, 0,
+            //0, 0,  0, 1
+            c, 0, -s, 0,
+            0, 1, 0,  0,
+            s, 0, c,  0,
+            0, 0, 0,  1
         };
     add_transform(trans_mat);
 }
 
 
 void EdgeBuffer::rotate_z(float theta) {
+    theta *= M_PI / 180.0f;
     float c = cos(theta);
     float s = sin(theta);
     float trans_mat[] = {
-            c, -s, 0, 0,
-            s, c,  0, 0,
+            c, s, 0, 0,
+            -s, c,  0, 0,
             0, 0,  1, 0,
             0, 0,  0, 1
         };

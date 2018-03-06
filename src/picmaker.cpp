@@ -9,50 +9,16 @@
 #include "renderer.h"
 #include "edgebuffer.h"
 #include "matrix.h"
+#include "parser.h"
 
-int main() {
-    
-    
-    /*float f_mat[] =
-        {1, 2, 3,
-         4, 5, 6,
-         7, 8, 9,
-         1, 1, 1};
-
-    float f_transform[] =
-        {1, 0, 0, 1,
-         0, 1, 0, 0,
-         0, 0, 1, 0,
-         0, 0, 0, 1};
-
-    Matrix mat1(3, 4, f_mat);
-    Matrix transform(4, 4, f_transform);
-
-
-    printf("TRANSFORM: \n");
-    transform.print();
-    printf("MAT: \n");
-    mat1.print();
-
-    mat1.multiply(&transform);
-
-    printf("MAT AFTER: \n");
-    mat1.print();
-    */
-
-    Image img(440, 320);
-    Renderer renderer(&img);
-    EdgeBuffer *buffer = new EdgeBuffer();;
-
+void readObjFile(char *dir, EdgeBuffer *buffer) {
     char letters[80720]; // Should use stat to grab file size, but I'm lazy
 
-    printf("reading and opening file...\n");
+    printf("reading and opening %s...\n", dir);
 
-    int fd = open("res/Banana.objfile", O_RDONLY);
+    int fd = open(dir, O_RDONLY);
 
     read(fd, letters, sizeof(letters));
-
-    printf("Done reading file, now storing data...\n");
 
     char *current_string;
     int index = 0;
@@ -72,56 +38,35 @@ int main() {
             float z = coord[1];
             buffer->addPoint(x, y, z);
             index = 0;
-
-            //counter++;
         }
-    }
+    } 
+}
+
+int main() {
     
-    //buffer->getPoints()->print();
 
-    // Center the banana
-    //buffer->translate(-150,180,0);
     
-    // Scale up
-    //buffer->scale(2,2,0);
 
-    // Move to proper coordinate
-    //buffer->translate(200, 200, 0);
+    Image img(320, 320);
+    Renderer renderer(&img);
+    EdgeBuffer *buffer = new EdgeBuffer();
 
-    //buffer->getPoints()->print();
+    struct Color p = {255, 255, 0};
+    renderer.setColor(p);
 
-    /* buffer->addEdge(100,100,0,
-                   200,200,0);
-    */
- 
+    Parser::parseFile("src/script", buffer, &renderer);
 
-    buffer->translate(200,200,0);
-    buffer->rotate_z(-20 * 3.1415 / 100);
-    buffer->translate(-150,180,0);
-    //buffer->rotate_x(3.1415 / 2);
+    exit(0);
 
-    // Now scale to our final size (2x)
-    //buffer->scale(1.5,1.5,0);
-    
-    // Move banana to starting position
-    //buffer->translate(210, -160, 0);
-    // Center the banana to (0,0)
+    readObjFile("res/Banana.objfile", buffer);
+
+    buffer->translate(-120,170,0);
+    buffer->rotate_z(180);
 
     buffer->apply();
 
-    /*
-    int i;
-    for(i = 0; i < 20; i++) {
 
-        buffer->scale(1.01f,1.01f,0);
-    
-        unsigned char col = 255 * ((float)i / 20.0f);
-        struct Color p = {col, col, 0};
-        renderer.setColor(p);
-
-        renderer.drawEdgeBufferLines(buffer);
-    }*/
-    struct Color p = {255, 255, 0};
+    //struct Color p = {255, 255, 0};
     renderer.setColor(p);
     renderer.drawEdgeBufferLines(buffer);
 
