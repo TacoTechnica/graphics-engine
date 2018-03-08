@@ -5,13 +5,13 @@
 #include<string.h>
 #include<math.h>
 
-#include "image.h"
+#include "scene.h"
 #include "renderer.h"
 #include "edgebuffer.h"
 #include "matrix.h"
-#include "parser.h"
 
-/*void readObjFile(char *dir, EdgeBuffer *buffer) {
+
+void readObjFile(char *dir, EdgeBuffer *buffer) {
     char letters[80720]; // Should use stat to grab file size, but I'm lazy
 
     printf("reading and opening %s...\n", dir);
@@ -40,41 +40,38 @@
             index = 0;
         }
     } 
-}*/
+}
 
-/*int main() {
-    
+void Scene::init() {
+    angle = 0;
 
-    
-
-    Image img(320, 320);
-    Renderer renderer(&img);
-    EdgeBuffer *buffer = new EdgeBuffer();
-
-    struct Color p = {255, 255, 0};
-    renderer.setColor(p);
-
-    Parser::parseFile("src/script", buffer, &renderer);
-
-    exit(0);
+    buffer = new EdgeBuffer();
 
     readObjFile("res/Banana.objfile", buffer);
+}
 
-    buffer->translate(-120,170,0);
+void Scene::tick() {
+
+}
+
+void Scene::render(Renderer *g) {
+
+    //angle += 0.1;
+
+    struct Color p = {255, 255, 0};
+    g->setColor(p);
+
+    buffer->transformSetIdentity();
+    buffer->translate(-120 + (int)angle,-280,0);
     buffer->rotate_z(180);
 
     buffer->apply();
 
 
-    //struct Color p = {255, 255, 0};
-    renderer.setColor(p);
-    renderer.drawEdgeBufferLines(buffer);
+    g->drawEdgeBufferLines(buffer);
 
-
-    Image::writeToPPM(&img, "image.ppm");
-
-    delete buffer;    
-
-    return 0;
 }
-*/
+
+Scene::~Scene() {
+    delete buffer;
+}

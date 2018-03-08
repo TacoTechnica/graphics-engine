@@ -7,6 +7,8 @@ PROGRAM_NAME = game.out
 
 #####################################################################
 
+CFLAGS = -lSDL2 -lSDL2main -lSDL2_image -lm
+
 rwildcard = $(foreach d, $(wildcard $1*), $(call rwildcard, $d/, $2) $(filter $(subst *, %, $2), $d))
 
 HEADERS = $(wildcard $(call rwildcard, $(SRC_DIR), *.h))
@@ -19,11 +21,11 @@ all: bin_dir_exists $(PROGRAM_NAME)
 	./$(PROGRAM_NAME)
 
 $(PROGRAM_NAME): $(HEADERS) $(OBJS)
-	$(CC) -o $@ $^ 
+	$(CC) -o $@ $^ $(CFLAGS)
 
 
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CC)  -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 bin_dir_exists:
 	mkdir -p $(BIN_DIR)

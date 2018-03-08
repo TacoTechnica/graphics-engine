@@ -46,7 +46,7 @@ void Window::showFrame() {
     int xx, yy;
     for(yy = 0; yy < getHeight(); yy++) {
         for(xx = 0; xx < getWidth(); xx++) {
-            struct Pixel *pix = frame->getPixel(xx,yy);
+            struct Color *pix = frame->getPixel(xx,yy);
             SDL_SetRenderDrawColor(renderer, pix->r, pix->g, pix->b, 255);
             SDL_RenderDrawPoint(renderer, xx, yy);
         }

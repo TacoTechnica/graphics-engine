@@ -21,7 +21,7 @@ class Window {
         ~Window();
         Image *getFrame() {return frame;}
         Renderer *getGraphics() {return graphics;}
-        //SDL_Renderer *getRenderer() {return renderer;}
+        SDL_Renderer *getSDLRenderer() {return renderer;}
         int getWidth();
         int getHeight();
 

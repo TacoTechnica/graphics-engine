@@ -1,9 +1,9 @@
 #include<SDL2/SDL.h>
 
 #include "window.h"
+#include "renderer.h"
 #include "image.h"
 #include "scene.h"
-
 #include "matrix.h"
 
 #define GAME_FPS 60
@@ -22,12 +22,16 @@ void quit();
 
 //int temp = 0;
 
+// temp
+Scene *scene;
 
 void start() {
     running = true;
     window = new Window(640, 480, "Test!");
 
-
+    scene = new Scene();
+    scene->init();
+    
     loop();
 }
 
@@ -82,25 +86,26 @@ void tick() {
         }
     }
 
-
+    scene->tick();
 }
 void render() {
     /*Image *frame = window->getFrame();
     int xx, yy;
     for(yy = 0; yy < window->getHeight(); yy++) {
         for(xx = 0; xx < window->getWidth(); xx++) {
-            struct Pixel *pix = frame->getPixel(xx,yy);
+            struct Color *pix = frame->getColor(xx,yy);
             pix->r = 0;
             pix->g = 0;
             pix->b = 0;
         }
     }
     */
-    Graphics *g = window->getGraphics();
+    Renderer *g = window->getGraphics();
 
-    g->setColor( (struct Pixel){0,0,0} );
+    g->setColor( (struct Color){0,0,0} );
     g->fillRect(0,0,window->getWidth(), window->getHeight());
 
+    scene->render(g);
 
     window->showFrame();
 }
@@ -108,16 +113,12 @@ void render() {
 
 void quit() {
     delete window;
-
-    delete tempScene;
 }
 
 int main() {
 
-    Window win(640, 480, "Window 1");
+    start();
+    quit();
 
-    win.getFrame()->getPixel(15,15)->r = 255;
-    win.showFrame();
-    SDL_Delay(2000);
     return 0;
 }

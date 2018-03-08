@@ -95,6 +95,15 @@ void Renderer::drawLine(int x0, int y0, int x1, int y1) {
     }
 }
 
+void Renderer::fillRect(int x, int y, int w, int h) {
+    int xx, yy;
+    for(xx = x; xx < x+w; xx++) {
+        for(yy = y; yy < y+h; yy++) {
+            plot(xx,yy);
+        }
+    }
+}
+
 void Renderer::drawEdgeBufferLines(EdgeBuffer *buffer) {
     Matrix *mat = buffer->getPoints();
     int col;
