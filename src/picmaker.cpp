@@ -42,7 +42,7 @@ void readObjFile(char *dir, EdgeBuffer *buffer) {
     } 
 }
 
-int main() {
+/*int main() {
     
 
     
@@ -77,3 +77,4 @@ int main() {
 
     return 0;
 }
+*/

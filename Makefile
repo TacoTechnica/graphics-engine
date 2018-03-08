@@ -3,7 +3,7 @@ CC = g++
 SRC_DIR = src
 BIN_DIR = bin
 
-PROGRAM_NAME = render.out
+PROGRAM_NAME = game.out
 
 #####################################################################
 
@@ -30,7 +30,7 @@ bin_dir_exists:
 
 run: all
 	./$(PROGRAM_NAME)
-	display *.ppm
+
 clean:
 	rm -f $(PROGRAM_NAME)
 	rm -rf $(BIN_DIR)
