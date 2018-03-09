@@ -29,6 +29,108 @@ void EdgeBuffer::addEdge(float x0, float y0, float z0, float x1, float y1, float
     addPoint(x1, y1, z1);
 }
 
+void EdgeBuffer::addCircle(float cx, float cy, float cz, float r) {
+    int t;
+    for(t = 0; t < PARAMETRIC_ACCURACY; t++) {
+        double theta = M_PI*2.0*(double)(t)/ PARAMETRIC_ACCURACY;
+        double xx = cx + r * cos(theta);
+        double yy = cy + r * sin(theta);
+        addPoint(xx, yy, cz);
+        if (t != 0) {
+            addPoint(xx, yy, cz); // Second point in the same place
+        }
+    }
+    // Complete the circle
+    addPoint(cx + r, cy, cz);
+}
+
+// TODO: Hermite and Bezier are basically the same, with minor changes. Reduce copying
+void EdgeBuffer::addHermite(float x0, float y0, float x1, float y1, float dx0, float dy0, float dx1, float dy1) {
+    float data_mat[] = {
+        x0,  y0,
+        x1,  y1,
+        dx0, dy0,
+        dx1, dy1
+    };
+    Matrix *data = new Matrix(2, 4, data_mat);
+    float transform_mat[] = {
+         2, -2,  1,  1,
+        -3,  3, -2, -1,
+         0,  0,  1,  0,
+         1,  0,  0,  0
+    };
+    Matrix *transform = new Matrix(4,4,transform_mat);
+    data->multiply(transform);
+
+    float ax, bx, cx, dx,
+          ay, by, cy, dy;
+    ax = *(data->get(0,0));
+    bx = *(data->get(0,1));
+    cx = *(data->get(0,2));
+    dx = *(data->get(0,3));
+    ay = *(data->get(1,0));
+    by = *(data->get(1,1));
+    cy = *(data->get(1,2));
+    dy = *(data->get(1,3));
+
+    float zz = 0;
+    float t;
+    for(t = 0; t < 1; t+= 1.0 / (float)(PARAMETRIC_ACCURACY)) {
+
+        float t3 = t*t*t;
+        float t2 = t*t;
+        float xx = ax*t3 + bx*t2 + cx*t + dx;
+        float yy = ay*t3 + by*t2 + cy*t + dy;
+        addPoint(xx, yy, zz);
+        if (t != 0) {
+            addPoint(xx, yy, zz); // Second point in the same place
+        }
+    }
+}
+
+void EdgeBuffer::addBezier(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3) {
+    float data_mat[] = {
+        x0, y0,
+        x1, y1,
+        x2, y2,
+        x3, y3
+    };
+    Matrix *data = new Matrix(2, 4, data_mat);
+    float transform_mat[] = {
+        -1,  3, -3,  1,
+         3, -6,  3,  0,
+        -3,  3,  0,  0,
+         1,  0,  0,  0
+    };
+    Matrix *transform = new Matrix(4,4,transform_mat);
+    data->multiply(transform);
+
+    float ax, bx, cx, dx,
+          ay, by, cy, dy;
+    ax = *(data->get(0,0));
+    bx = *(data->get(0,1));
+    cx = *(data->get(0,2));
+    dx = *(data->get(0,3));
+    ay = *(data->get(1,0));
+    by = *(data->get(1,1));
+    cy = *(data->get(1,2));
+    dy = *(data->get(1,3));
+
+    float zz = 0;
+    float t;
+    for(t = 0; t < 1; t+= 1.0 / (float)(PARAMETRIC_ACCURACY)) {
+
+        float t3 = t*t*t;
+        float t2 = t*t;
+        float xx = ax*t3 + bx*t2 + cx*t + dx;
+        float yy = ay*t3 + by*t2 + cy*t + dy;
+        addPoint(xx, yy, zz);
+        if (t != 0) {
+            addPoint(xx, yy, zz); // Second point in the same place
+        }
+    }
+}
+
 
 //void EdgeBuffer::transform(Matrix *transform) {
 //    points->multiply(transform);

@@ -47,12 +47,22 @@ int main() {
 
     
 
-    Image img(320, 320);
+    Image img(400, 400);
     Renderer renderer(&img);
     EdgeBuffer *buffer = new EdgeBuffer();
 
     struct Color p = {255, 255, 0};
     renderer.setColor(p);
+
+    //buffer->addCircle(200, 200, 0, 150);
+
+    buffer->addHermite(10, 10, 390, 390, 1000, 0, 1000, 1000);
+
+    renderer.drawEdgeBufferLines(buffer);
+
+    Image::writeToPPM(&img, "image.ppm");
+
+    exit(0);
 
     Parser::parseFile("src/script", buffer, &renderer);
 
