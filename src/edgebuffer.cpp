@@ -74,9 +74,9 @@ void EdgeBuffer::addHermite(float x0, float y0, float x1, float y1, float dx0, f
     dy = *(data->get(1,3));
 
     float zz = 0;
-    float t;
-    for(t = 0; t < 1; t+= 1.0 / (float)(PARAMETRIC_ACCURACY)) {
-
+    int i;
+    for(i = 0; i < PARAMETRIC_ACCURACY; i++) {
+        float t = (float)i/PARAMETRIC_ACCURACY;
         float t3 = t*t*t;
         float t2 = t*t;
         float xx = ax*t3 + bx*t2 + cx*t + dx;
@@ -117,8 +117,10 @@ void EdgeBuffer::addBezier(float x0, float y0, float x1, float y1, float x2, flo
     dy = *(data->get(1,3));
 
     float zz = 0;
-    float t;
-    for(t = 0; t < 1; t+= 1.0 / (float)(PARAMETRIC_ACCURACY)) {
+
+    int i;
+    for(i = 0; i < PARAMETRIC_ACCURACY; i++) {
+        float t = (float)i/PARAMETRIC_ACCURACY;
 
         float t3 = t*t*t;
         float t2 = t*t;
