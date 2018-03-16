@@ -29,6 +29,97 @@ void EdgeBuffer::addEdge(float x0, float y0, float z0, float x1, float y1, float
     addPoint(x1, y1, z1);
 }
 
+void EdgeBuffer::addPointyPoint(float x, float y, float z) {
+    float d = 4
+    addEdge(x-d/2, y-d/2, z-d/2, x+d/2, y+d/2, z+d/2);
+}
+
+// Adds all the edges from a matrix
+// Basically appends this matrix to our own point matrix
+void EdgeBuffer::addEdges(Matrix *m) {
+    int col;
+    for(col = 0; col < m->getNumColumns(); col++) {
+        addPoint(*m->get(col, 0), *m->get(col, 1), *m->get(col, 2));
+    }
+}
+
+Matrix *EdgeBuffer::genBox(float x, float y, float z, float xlength, float ylength, float zlength) {
+	EdgeBuffer *boxBuff = new EdgeBuffer();
+	
+    // Front face
+    boxBuff.addEdge(x,y,z, x+xlength,y,z);
+    boxBuff.addEdge(x+xlength,y,z, x+xlength,y,z+zlength);
+    boxBuff.addEdge(x+xlength,y,z+zlength, x,y,z+zlength);
+    boxBuff.addEdge(x,y,z+zlength, x,y,z);
+
+    // Back face
+    boxBuff.addEdge(x,y+ylength,z, x+xlength,y+ylength,z);
+    boxBuff.addEdge(x+xlength,y+ylength,z, x+xlength,y+ylength,z+zlength);
+    boxBuff.addEdge(x+xlength,y+ylength,z+zlength, x,y+ylength,z+zlength);
+    boxBuff.addEdge(x,y+ylength,z+zlength, x,y+ylength,z);
+    
+    // In betweeners
+    boxBuff.addEdge(x,y,z, x,y+ylength,z);
+    boxBuff.addEdge(x+xlength,y,z, x+xlength,y+ylength,z);
+    boxBuff.addEdge(x,y,z+zlength, x,y+ylength,z+zlength);
+    boxBuff.addEdge(x+xlength,y,z+zlength, x+zlength,y+ylength,z+zlength);
+
+    // Copy over the Box Edge Buffer's matrix and dispose of the buffer
+    Matrix *toCopy = new Matrix(0);
+    boxBuff->getPoints->copyTo(toCopy);
+    delete boxBuff;
+
+    return toCopy;
+}
+
+void EdgeBuffer::addBox(float x, float y, float z, float xlength, float ylength, float zlength) {
+    Matrix *boxMat = genBox(x,y,z,xlength,ylength,zlength);
+    addEdges(boxMat);
+    delete boxMat;
+}
+
+Matrix *genSphere(float x, float y, float z, float r) {
+	EdgeBuffer *sphereBuff = new EdgeBuffer();
+
+    int theta_count, phi_count;
+    for(phi_count = 0; phi_count < PARAMETRIC_ACCURACY; phi_count++) {
+        for(theta_count = 0; theta_count < PARAMETRIC_ACCURACY; theta_count++) {
+            double phi = M_PI*2.0*(double)(phi_count) / PARAMETRIC_ACCURACY;
+            double theta = M_PI*(double)(theta_count) / PARAMETRIC_ACCURACY;
+
+            double px = r*cos(theta) + x;
+            double py = r*sin(theta)*cos(phi) + y;
+            double pz = r*sin(theta)*sin(phi) + z;
+
+            addPointyPoint(px,py,pz);
+        }
+    }
+
+    // Copy over the Box Edge Buffer's matrix and dispose of the buffer
+    Matrix *toCopy = new Matrix(0);
+    sphereBuff->getPoints->copyTo(toCopy);
+    delete sphereBuff;
+
+    return toCopy;
+}
+
+void addSphere(float x, float y, float z, float r) {
+    Matrix *sphereMat = genSphere(x,y,z,r);
+    addEdges(sphereMat);
+    delete sphereMat;
+}
+
+Matrix *genTorus(float x, float y, float z, float rCircle, float rTorus) {
+    return NULL;
+}
+
+void addTorus(float x, float y, float z, float rCircle, float rTorus) {
+    Matrix *torusMat = genTorus(x,y,z,rCircle,rTorus);
+    addEdges(torusMat);
+    delete torusMat;
+    
+}
+
 void EdgeBuffer::addCircle(float cx, float cy, float cz, float r) {
     int t;
     for(t = 0; t < PARAMETRIC_ACCURACY; t++) {
@@ -59,8 +150,8 @@ void EdgeBuffer::addHermite(float x0, float y0, float x1, float y1, float dx0, f
          0,  0,  1,  0,
          1,  0,  0,  0
     };
-    Matrix *transform = new Matrix(4,4,transform_mat);
-    data->multiply(transform);
+    Matrix *transformer = new Matrix(4,4,transform_mat);
+    data->multiply(transformer);
 
     float ax, bx, cx, dx,
           ay, by, cy, dy;
@@ -86,6 +177,9 @@ void EdgeBuffer::addHermite(float x0, float y0, float x1, float y1, float dx0, f
             addPoint(xx, yy, zz); // Second point in the same place
         }
     }
+
+    delete data;
+    delete transformer;
 }
 
 void EdgeBuffer::addBezier(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3) {
@@ -102,8 +196,8 @@ void EdgeBuffer::addBezier(float x0, float y0, float x1, float y1, float x2, flo
         -3,  3,  0,  0,
          1,  0,  0,  0
     };
-    Matrix *transform = new Matrix(4,4,transform_mat);
-    data->multiply(transform);
+    Matrix *transformer = new Matrix(4,4,transform_mat);
+    data->multiply(transformer);
 
     float ax, bx, cx, dx,
           ay, by, cy, dy;
@@ -131,6 +225,9 @@ void EdgeBuffer::addBezier(float x0, float y0, float x1, float y1, float x2, flo
             addPoint(xx, yy, zz); // Second point in the same place
         }
     }
+
+    delete data;
+    delete transformer;
 }
 
 

@@ -134,6 +134,21 @@ void Parser::parseFile(char *filename, EdgeBuffer *buffer, Renderer *renderer) {
             remove("temp_image.ppm");
             continue;
         }
+        if (eq(line, "box")) {
+            fgets(line, 255, f);
+            line_num++;
+
+            split_args(line, args);
+            buffer->addBox(
+                atof(args[0]),
+                atof(args[1]),
+                atof(args[2]),
+                atof(args[3]),
+                atof(args[4]),
+                atof(args[5])
+            );
+            continue;
+        }
         
     }
 }
