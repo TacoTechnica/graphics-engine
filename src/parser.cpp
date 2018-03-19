@@ -149,7 +149,7 @@ void Parser::parseFile(char *filename, EdgeBuffer *buffer, Renderer *renderer) {
             );
             continue;
         }
-        
+
     }
 }
 

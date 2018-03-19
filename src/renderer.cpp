@@ -15,6 +15,19 @@ void Renderer::plot(int x, int y) {
         memcpy(img->getPixel(x,y), &color, sizeof(struct Color));
 }
 
+/** refill()
+ *
+ *      Refills the screen completely with our draw color
+ */
+void Renderer::refill() {
+    int xx, yy;
+    for(yy = 0; yy < img->getHeight(); yy++) {
+        for(xx = 0; xx < img->getWidth(); xx++) {
+            plot(xx,yy);
+        }
+    }
+}
+
 /* drawLine(x0, y0, x1, y1)
  *
  *      Draws a line from (x0, y0) to (x1, y1) on our image

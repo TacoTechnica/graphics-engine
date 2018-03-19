@@ -51,18 +51,34 @@ int main() {
     Renderer renderer(&img);
     EdgeBuffer *buffer = new EdgeBuffer();
 
-    struct Color p = {255, 255, 0};
+    struct Color p = {255, 255, 255};
+    renderer.setColor(p);
+    renderer.refill();
+
+    p = {0, 0, 0};
     renderer.setColor(p);
 
-    //buffer->addCircle(200, 200, 0, 150);
-
-    buffer->addHermite(10, 10, 390, 390, 1000, 0, 1000, 1000);
+    buffer->addTorus(0, 0, 0, 10, 100);
+    //buffer->addSphere(0, 0, 0, 100);
+    
+    // box works
+    //buffer->addBox(10, 10, 10, 100, 200, 100);
+    //buffer->rotate_y(-45);
+    //buffer->apply();
+    //buffer->transformSetIdentity();
+    ////buffer->rotate_x(10);
+    ////buffer->apply();
+    buffer->translate(200, 200, 0);
+    buffer->apply();
 
     renderer.drawEdgeBufferLines(buffer);
 
     Image::writeToPPM(&img, "image.ppm");
 
+    //////////////////////////////////////////////////
+    // End
     exit(0);
+    //////////////////////////////////////////////////
 
     Parser::parseFile("src/script", buffer, &renderer);
 

@@ -90,6 +90,8 @@ void Matrix::growColumns(int newColumns) {
 }
 
 void Matrix::copyTo(Matrix *mat) {
+    // Resize if we're not there
+    mat->growColumns(columns);
     int col, row;
     for(col = 0; col < columns; col++) {
         for(row = 0; row < rows; row++) {

@@ -1,4 +1,4 @@
-//#include<stdio.h>
+#include<stdio.h>
 #include<math.h>
 
 #include "edgebuffer.h"
@@ -30,7 +30,7 @@ void EdgeBuffer::addEdge(float x0, float y0, float z0, float x1, float y1, float
 }
 
 void EdgeBuffer::addPointyPoint(float x, float y, float z) {
-    float d = 4
+    float d = 1;
     addEdge(x-d/2, y-d/2, z-d/2, x+d/2, y+d/2, z+d/2);
 }
 
@@ -45,28 +45,31 @@ void EdgeBuffer::addEdges(Matrix *m) {
 
 Matrix *EdgeBuffer::genBox(float x, float y, float z, float xlength, float ylength, float zlength) {
 	EdgeBuffer *boxBuff = new EdgeBuffer();
-	
+
     // Front face
-    boxBuff.addEdge(x,y,z, x+xlength,y,z);
-    boxBuff.addEdge(x+xlength,y,z, x+xlength,y,z+zlength);
-    boxBuff.addEdge(x+xlength,y,z+zlength, x,y,z+zlength);
-    boxBuff.addEdge(x,y,z+zlength, x,y,z);
+    boxBuff->addEdge(x,y,z, x+xlength,y,z);
+    boxBuff->addEdge(x+xlength,y,z, x+xlength,y,z+zlength);
+    boxBuff->addEdge(x+xlength,y,z+zlength, x,y,z+zlength);
+    boxBuff->addEdge(x,y,z+zlength, x,y,z);
 
     // Back face
-    boxBuff.addEdge(x,y+ylength,z, x+xlength,y+ylength,z);
-    boxBuff.addEdge(x+xlength,y+ylength,z, x+xlength,y+ylength,z+zlength);
-    boxBuff.addEdge(x+xlength,y+ylength,z+zlength, x,y+ylength,z+zlength);
-    boxBuff.addEdge(x,y+ylength,z+zlength, x,y+ylength,z);
-    
-    // In betweeners
-    boxBuff.addEdge(x,y,z, x,y+ylength,z);
-    boxBuff.addEdge(x+xlength,y,z, x+xlength,y+ylength,z);
-    boxBuff.addEdge(x,y,z+zlength, x,y+ylength,z+zlength);
-    boxBuff.addEdge(x+xlength,y,z+zlength, x+zlength,y+ylength,z+zlength);
+    boxBuff->addEdge(x,y+ylength,z, x+xlength,y+ylength,z);
+    boxBuff->addEdge(x+xlength,y+ylength,z, x+xlength,y+ylength,z+zlength);
+    boxBuff->addEdge(x+xlength,y+ylength,z+zlength, x,y+ylength,z+zlength);
+    boxBuff->addEdge(x,y+ylength,z+zlength, x,y+ylength,z);
 
+    // In betweeners
+    boxBuff->addEdge(x,y,z, x,y+ylength,z);
+    boxBuff->addEdge(x+xlength,y,z, x+xlength,y+ylength,z);
+    boxBuff->addEdge(x,y,z+zlength, x,y+ylength,z+zlength);
+    boxBuff->addEdge(x+xlength,y,z+zlength, x+zlength,y+ylength,z+zlength);
+
+    printf("break 1\n");
     // Copy over the Box Edge Buffer's matrix and dispose of the buffer
     Matrix *toCopy = new Matrix(0);
-    boxBuff->getPoints->copyTo(toCopy);
+    printf("break 2\n");
+    boxBuff->getPoints()->copyTo(toCopy);
+    printf("break 3\n");
     delete boxBuff;
 
     return toCopy;
@@ -78,42 +81,66 @@ void EdgeBuffer::addBox(float x, float y, float z, float xlength, float ylength,
     delete boxMat;
 }
 
-Matrix *genSphere(float x, float y, float z, float r) {
-	EdgeBuffer *sphereBuff = new EdgeBuffer();
+Matrix *EdgeBuffer::genSphere(float x, float y, float z, float r) {
+    EdgeBuffer *sphereBuff = new EdgeBuffer();
 
     int theta_count, phi_count;
     for(phi_count = 0; phi_count < PARAMETRIC_ACCURACY; phi_count++) {
-        for(theta_count = 0; theta_count < PARAMETRIC_ACCURACY; theta_count++) {
-            double phi = M_PI*2.0*(double)(phi_count) / PARAMETRIC_ACCURACY;
+        double phi = M_PI*2.0*(double)(phi_count) / PARAMETRIC_ACCURACY;
+        for(theta_count = 0; theta_count <= PARAMETRIC_ACCURACY; theta_count++) {
             double theta = M_PI*(double)(theta_count) / PARAMETRIC_ACCURACY;
 
-            double px = r*cos(theta) + x;
-            double py = r*sin(theta)*cos(phi) + y;
-            double pz = r*sin(theta)*sin(phi) + z;
+            double px = r*cos(theta);
+            double py = r*sin(theta)*cos(phi);
+            double pz = r*sin(theta)*sin(phi);
 
-            addPointyPoint(px,py,pz);
+            addPointyPoint(x + px,y + py,z + pz);
         }
     }
 
     // Copy over the Box Edge Buffer's matrix and dispose of the buffer
     Matrix *toCopy = new Matrix(0);
-    sphereBuff->getPoints->copyTo(toCopy);
+    sphereBuff->getPoints()->copyTo(toCopy);
     delete sphereBuff;
 
     return toCopy;
 }
 
-void addSphere(float x, float y, float z, float r) {
+void EdgeBuffer::addSphere(float x, float y, float z, float r) {
     Matrix *sphereMat = genSphere(x,y,z,r);
     addEdges(sphereMat);
     delete sphereMat;
 }
 
-Matrix *genTorus(float x, float y, float z, float rCircle, float rTorus) {
-    return NULL;
+Matrix *EdgeBuffer::genTorus(float x, float y, float z, float rCircle, float rTorus) {
+    EdgeBuffer *torusBuff = new EdgeBuffer();
+
+    int theta_count, phi_count;
+    for(phi_count = 0; phi_count < PARAMETRIC_ACCURACY; phi_count++) {
+        double phi = M_PI*2.0*(double)(phi_count) / PARAMETRIC_ACCURACY;
+        // Where our circle is to be drawn in the torus
+        double cx = rTorus*cos(phi);
+        double cy = rTorus*sin(phi);
+        for(theta_count = 0; theta_count < PARAMETRIC_ACCURACY; theta_count++) {
+            double theta = M_PI*2.0*(double)(theta_count) / PARAMETRIC_ACCURACY;
+
+            double px = rCircle*cos(theta);
+            double py = rCircle*sin(theta)*cos(phi);
+            double pz = rCircle*sin(theta)*sin(phi);
+
+            addPointyPoint(x + cx + px,y + cy + py,z + pz);
+        }
+    }
+
+    // Copy over the Box Edge Buffer's matrix and dispose of the buffer
+    Matrix *toCopy = new Matrix(0);
+    torusBuff->getPoints()->copyTo(toCopy);
+    delete torusBuff;
+
+    return toCopy;
 }
 
-void addTorus(float x, float y, float z, float rCircle, float rTorus) {
+void EdgeBuffer::addTorus(float x, float y, float z, float rCircle, float rTorus) {
     Matrix *torusMat = genTorus(x,y,z,rCircle,rTorus);
     addEdges(torusMat);
     delete torusMat;
@@ -123,7 +150,7 @@ void addTorus(float x, float y, float z, float rCircle, float rTorus) {
 void EdgeBuffer::addCircle(float cx, float cy, float cz, float r) {
     int t;
     for(t = 0; t < PARAMETRIC_ACCURACY; t++) {
-        double theta = M_PI*2.0*(double)(t)/ PARAMETRIC_ACCURACY;
+        double theta = M_PI*2.0*(double)(t) / PARAMETRIC_ACCURACY;
         double xx = cx + r * cos(theta);
         double yy = cy + r * sin(theta);
         addPoint(xx, yy, cz);
