@@ -95,7 +95,7 @@ Matrix *EdgeBuffer::genSphere(float x, float y, float z, float r) {
             double py = r*sin(theta)*cos(phi);
             double pz = r*sin(theta)*sin(phi);
 
-            addPointyPoint(x + px,y + py,z + pz);
+            sphereBuff->addPointyPoint(x + px,y + py,z + pz);
         }
     }
 
@@ -125,11 +125,10 @@ Matrix *EdgeBuffer::genTorus(float x, float y, float z, float rCircle, float rTo
         for(theta_count = 0; theta_count < PARAMETRIC_ACCURACY; theta_count++) {
             double theta = M_PI*2.0*(double)(theta_count) / PARAMETRIC_ACCURACY;
 
-            double px = rCircle*cos(theta);
-            double py = rCircle*sin(theta)*cos(phi);
-            double pz = rCircle*sin(theta)*sin(phi);
-
-            addPointyPoint(x + cx + px,y + cy + py,z + pz);
+            double px = rCircle*sin(theta)*cos(phi);
+            double py = rCircle*sin(theta)*sin(phi);
+            double pz = rCircle*cos(theta);
+            torusBuff->addPointyPoint(x + cx + px,y + cy + py,z + pz);
         }
     }
 

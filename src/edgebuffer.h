@@ -12,18 +12,18 @@
 
 class EdgeBuffer : public Buffer {
     private:
-        const int PARAMETRIC_ACCURACY = 30;// # of lines in a curve
+        static const int PARAMETRIC_ACCURACY = 30;// # of lines in a curve
     public:
         //EdgeBuffer();
         //~EdgeBuffer();
         void addEdge(float x0, float y0, float z0, float x1, float y1, float z1);
         void addEdges(Matrix *m);
         void addPointyPoint(float x, float y, float z);
-        Matrix *genBox(float x, float y, float z, float xlength, float ylength, float zlength);
+        static Matrix *genBox(float x, float y, float z, float xlength, float ylength, float zlength);
         void addBox(float x, float y, float z, float xlength, float ylength, float zlength);
-        Matrix *genSphere(float x, float y, float z, float r);
+        static Matrix *genSphere(float x, float y, float z, float r);
         void addSphere(float x, float y, float z, float r);
-        Matrix *genTorus(float x, float y, float z, float rCircle, float rTorus);
+        static Matrix *genTorus(float x, float y, float z, float rCircle, float rTorus);
         void addTorus(float x, float y, float z, float rCircle, float rTorus);
         void addCircle(float cx, float cy, float cz, float r);
         void addHermite(float x0, float y0, float x1, float y1, float dx0, float dy0, float dx1, float dy1);
