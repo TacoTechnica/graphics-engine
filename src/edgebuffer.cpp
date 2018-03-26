@@ -35,15 +35,6 @@ void EdgeBuffer::addPointyPoint(float x, float y, float z) {
     addEdge(x-d/2, y-d/2, z-d/2, x+d/2, y+d/2, z+d/2);
 }
 
-// Adds all the edges from a matrix
-// Basically appends this matrix to our own point matrix
-void EdgeBuffer::addEdges(Matrix *m) {
-    int col;
-    for(col = 0; col < m->getNumColumns(); col++) {
-        addPoint(*m->get(col, 0), *m->get(col, 1), *m->get(col, 2));
-    }
-}
-
 Matrix *EdgeBuffer::genBox(float x, float y, float z, float xlength, float ylength, float zlength) {
 	EdgeBuffer *boxBuff = new EdgeBuffer();
 
@@ -65,12 +56,9 @@ Matrix *EdgeBuffer::genBox(float x, float y, float z, float xlength, float yleng
     boxBuff->addEdge(x,y,z+zlength, x,y+ylength,z+zlength);
     boxBuff->addEdge(x+xlength,y,z+zlength, x+zlength,y+ylength,z+zlength);
 
-    printf("break 1\n");
     // Copy over the Box Edge Buffer's matrix and dispose of the buffer
     Matrix *toCopy = new Matrix(0);
-    printf("break 2\n");
     boxBuff->getPoints()->copyTo(toCopy);
-    printf("break 3\n");
     delete boxBuff;
 
     return toCopy;

@@ -4,6 +4,7 @@
 
 #include "image.h"
 #include "edgebuffer.h"
+#include "trianglebuffer.h"
 
 class Renderer {
     private:
@@ -19,6 +20,7 @@ class Renderer {
         Image *getImage() {return img;}
         
         void drawEdgeBufferLines(EdgeBuffer *buffer);
+        void drawTriangleBufferMesh(TriangleBuffer *buffer);
 };
 
 #endif

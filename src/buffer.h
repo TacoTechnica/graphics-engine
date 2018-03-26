@@ -10,6 +10,7 @@ class Buffer {
         Matrix *transform;
         int pointCount;
         void add_transform(float* trans_mat);
+        void addPoints(Matrix *m);
     public:
         Buffer();
         ~Buffer();

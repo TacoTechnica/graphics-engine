@@ -1,24 +1,14 @@
-/** Edge Buffer
- *
- *      Holds a bunch of lines in a matrix with transformations
- *
- */
 
-#ifndef H_EDGEBUFFER
-#define H_EDGEBUFFER
+#ifndef H_TRIANGLEBUFFER
+#define H_TRIANGLEBUFFER
 
 #include "matrix.h"
 #include "buffer.h"
 
-class EdgeBuffer : public Buffer {
-    private:
-        static const int PARAMETRIC_ACCURACY = 30;// # of lines in a curve
+class TriangleBuffer : public Buffer {
     public:
-        //EdgeBuffer();
-        //~EdgeBuffer();
-        void addEdge(float x0, float y0, float z0, float x1, float y1, float z1);
-        void addEdges(Matrix *m) { Buffer::addPoints(m); }
-        void addPointyPoint(float x, float y, float z);
+        void addTriangle(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2);
+        void addTriangles(Matrix *m) { Buffer::addPoints(m); }
         static Matrix *genBox(float x, float y, float z, float xlength, float ylength, float zlength);
         void addBox(float x, float y, float z, float xlength, float ylength, float zlength);
         static Matrix *genSphere(float x, float y, float z, float r);

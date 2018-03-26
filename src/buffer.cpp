@@ -24,6 +24,15 @@ void Buffer::addPoint(float x, float y, float z) {
     *points->get(pointCount - 1, 3) = 1;
 }
 
+// Adds all the edges from a matrix
+// Basically appends this matrix to our own point matrix
+void Buffer::addPoints(Matrix *m) {
+    int col;
+    for(col = 0; col < m->getNumColumns(); col++) {
+        addPoint(*m->get(col, 0), *m->get(col, 1), *m->get(col, 2));
+    }
+}
+
 // Helper function for ease of use
 void Buffer::add_transform(float* trans_mat) {
     Matrix *trans = new Matrix(4,4, trans_mat);
