@@ -15,18 +15,6 @@ class TriangleBuffer : public Buffer {
         void addSphere(float x, float y, float z, float r);
         static Matrix *genTorus(float x, float y, float z, float rCircle, float rTorus);
         void addTorus(float x, float y, float z, float rCircle, float rTorus);
-        void addCircle(float cx, float cy, float cz, float r);
-        void addHermite(float x0, float y0, float x1, float y1, float dx0, float dy0, float dx1, float dy1);
-        void addBezier(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3);
-        //void transformSetIdentity();
-        //void translate(float dx, float dy, float dz);
-        //void scale(float sx, float sy, float sz);
-        //void rotate_x(float theta);
-        //void rotate_y(float theta);
-        //void rotate_z(float theta);
-        //void apply();
-        //int getPointCount() {return pointCount;}
-        //Matrix *getPoints() {return points;}
 };
 
 #endif

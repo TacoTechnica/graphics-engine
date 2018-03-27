@@ -123,3 +123,32 @@ void Renderer::drawEdgeBufferLines(EdgeBuffer *buffer) {
         );
     }
 }
+
+void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
+    Matrix *mat = buffer->getPoints();
+    int col;
+    for(col = 0; col < mat->getNumColumns(); col+=3) {
+        if (col >= mat->getNumColumns() || col+2 >= mat->getNumColumns())
+            break;
+
+        drawLine( 
+            *mat->get(col, 0),
+            *mat->get(col, 1),
+            *mat->get(col+1, 0),
+            *mat->get(col+1, 1)
+        );
+        drawLine( 
+            *mat->get(col+1, 0),
+            *mat->get(col+1, 1),
+            *mat->get(col+2, 0),
+            *mat->get(col+2, 1)
+        );
+        drawLine( 
+            *mat->get(col+2, 0),
+            *mat->get(col+2, 1),
+            *mat->get(col, 0),
+            *mat->get(col, 1)
+        );
+    }
+
+}

@@ -11,8 +11,6 @@
 #include "buffer.h"
 
 class EdgeBuffer : public Buffer {
-    private:
-        static const int PARAMETRIC_ACCURACY = 30;// # of lines in a curve
     public:
         //EdgeBuffer();
         //~EdgeBuffer();

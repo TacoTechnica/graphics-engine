@@ -75,13 +75,9 @@ void Buffer::rotate_x(float theta) {
     float c = cos(theta);
     float s = sin(theta);
     float trans_mat[] = {
-            //s, c,  0, 0,
-            //0, 0,  1, 0,
-            //c, -s, 0, 0,
-            //0, 0,  0, 1
-            1, 0,  1, 0,
-            0, c,  s, 0,
-            0, -s, c, 0,
+            1, 0,  0, 0,
+            0, c,  s, 0, // positive
+            0, -s, c, 0, // negative
             0, 0,  0, 1
         };
     add_transform(trans_mat);

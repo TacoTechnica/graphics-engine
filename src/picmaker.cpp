@@ -42,61 +42,10 @@ void readObjFile(char *dir, EdgeBuffer *buffer) {
     } 
 }
 
-void torusTorus(EdgeBuffer *buffer, float x, float y, float z, float rBigTorus, float rMiniTorus, float rMiniTorusCircle) {
-    EdgeBuffer *torusBuff = new EdgeBuffer();
-    Matrix *torusMat = EdgeBuffer::genTorus(0,0,0,rMiniTorusCircle, rMiniTorus);
-    torusBuff->addEdges(torusMat);
-
-    torusBuff->rotate_x(90);
-    torusBuff->apply();
-    torusBuff->transformSetIdentity();
-    int theta_count;
-    int PARAMETRIC_ACCURACY = 30;
-    for(theta_count = 0; theta_count < PARAMETRIC_ACCURACY; theta_count++) {
-        double theta = M_PI*2.0*(double)(theta_count) / PARAMETRIC_ACCURACY;
-
-        double px = rBigTorus*cos(theta);
-        double py = rBigTorus*sin(theta);
-
-        torusBuff->rotate_z(-360.0 / (double)PARAMETRIC_ACCURACY);
-        torusBuff->apply();
-        torusBuff->transformSetIdentity();
-
-        torusBuff->translate(x + px, y + py, z);
-        torusBuff->apply();
-        torusBuff->transformSetIdentity();
-
-        buffer->addEdges(torusBuff->getPoints());
-
-    
-        torusBuff->translate(-(x + px), -(y + py), -z);
-        torusBuff->apply();
-        torusBuff->transformSetIdentity();
-
-        
-
-        //buffer->addSphere(0,0,0, 10);
-        //buffer->addTorus(0,0,0, rMiniTorusCircle, rMiniTorus);
-        //buffer->rotate_y(90);
-        //buffer->apply();
-
-        //buffer->transformSetIdentity();
-        //buffer->translate(x + px, y + py, z);
-        //buffer->apply();
-        //buffer->transformSetIdentity();
-    }
-
-    delete torusBuff;
-    delete torusMat;
-}
-
-
 int main() {
-    
-
     Image img(400, 400);
     Renderer renderer(&img);
-    EdgeBuffer *buffer = new EdgeBuffer();
+    TriangleBuffer *buffer = new TriangleBuffer();
 
     struct Color p = {255, 255, 255};
     renderer.setColor(p);
@@ -105,24 +54,27 @@ int main() {
     p = {0, 0, 0};
     renderer.setColor(p);
 
-    //buffer->addTorus(0, 0, 0, 10, 100);
+    buffer->addTorus(0, 0, 0, 40, 200 - 20);
+    //buffer->addBox(-100, -100, -100, 200, 200, 200);
     //buffer->addSphere(0, 0, 0, 100);
 
+    buffer->scale(1,1,2);
+    buffer->apply();
+    buffer->transformSetIdentity();
+
     // box works
-    //buffer->addBox(10, 10, 10, 100, 200, 100);
-    //buffer->transformSetIdentity();
-    ////buffer->rotate_x(10);
-    ////buffer->apply();
-    
-    torusTorus(buffer, 0, 0, 0, 150, 50, 5);
-    buffer->rotate_y(-45);
+    buffer->rotate_y(40);
+    buffer->apply();
+    buffer->transformSetIdentity();
+
+    buffer->rotate_x(-45);
     buffer->apply();
     buffer->transformSetIdentity();
 
     buffer->translate(200, 200, 0);
     buffer->apply();
 
-    renderer.drawEdgeBufferLines(buffer);
+    renderer.drawTriangleBufferMesh(buffer);
 
     Image::writeToPPM(&img, "image.ppm");
 
@@ -130,7 +82,7 @@ int main() {
     // End
     exit(0);
     //////////////////////////////////////////////////
-
+    /*
     Parser::parseFile("src/script", buffer, &renderer);
 
     exit(0);
@@ -151,6 +103,7 @@ int main() {
     Image::writeToPPM(&img, "image.ppm");
 
     delete buffer;    
-
+    */
     return 0;
 }
+
