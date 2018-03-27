@@ -24,7 +24,11 @@ void split_args(char *line, char **args) {
     }
 }
 
-void Parser::parseFile(char *filename, EdgeBuffer *buffer, Renderer *renderer) {
+void Parser::parseFile(char *filename, Matrix *m, Renderer *renderer) {
+    
+    EdgeBuffer *edgeBuffer = new EdgeBuffer(m);
+    TriangleBuffer *triangleBuffer = new TriangleBuffer(m);
+
     FILE *f;
     char line[256];
     int line_num = 0;
@@ -50,7 +54,7 @@ void Parser::parseFile(char *filename, EdgeBuffer *buffer, Renderer *renderer) {
             line_num++;
 
             split_args(line, args);
-            buffer->addEdge(
+            edgeBuffer->addEdge(
                 atof(args[0]),
                 atof(args[1]),
                 atof(args[2]),
@@ -61,7 +65,8 @@ void Parser::parseFile(char *filename, EdgeBuffer *buffer, Renderer *renderer) {
             continue;
         }
         if (eq(line, "ident")) {
-            buffer->transformSetIdentity();
+            edgeBuffer->transformSetIdentity();
+            triangleBuffer->transformSetIdentity();
             continue;
         }
         if (eq(line, "scale")) {
@@ -69,7 +74,12 @@ void Parser::parseFile(char *filename, EdgeBuffer *buffer, Renderer *renderer) {
             line_num++;
 
             split_args(line, args);
-            buffer->scale(
+            edgeBuffer->scale(
+                atof(args[0]),
+                atof(args[1]),
+                atof(args[2])
+            );
+            triangleBuffer->scale(
                 atof(args[0]),
                 atof(args[1]),
                 atof(args[2])
@@ -81,7 +91,12 @@ void Parser::parseFile(char *filename, EdgeBuffer *buffer, Renderer *renderer) {
             line_num++;
 
             split_args(line, args);
-            buffer->translate(
+            edgeBuffer->translate(
+                atof(args[0]),
+                atof(args[1]),
+                atof(args[2])
+            );
+            triangleBuffer->translate(
                 atof(args[0]),
                 atof(args[1]),
                 atof(args[2])
@@ -94,15 +109,18 @@ void Parser::parseFile(char *filename, EdgeBuffer *buffer, Renderer *renderer) {
 
             split_args(line, args);
             if (eq(args[0], "x")) {
-                buffer->rotate_x( atof(args[1]) );
+                edgeBuffer->rotate_x( atof(args[1]) );
+                triangleBuffer->rotate_x( atof(args[1]) );
                 continue;
             }
             if (eq(args[0], "y")) {
-                buffer->rotate_y( atof(args[1]) );
+                edgeBuffer->rotate_y( atof(args[1]) );
+                triangleBuffer->rotate_y( atof(args[1]) );
                 continue;
             }
             if (eq(args[0], "z")) {
-                buffer->rotate_z( atof(args[1]) );
+                edgeBuffer->rotate_z( atof(args[1]) );
+                triangleBuffer->rotate_z( atof(args[1]) );
                 continue;
             }
             printf("[parser.cpp rotate function on line %d] ERROR: Invalid rotation axis: %s\n", line_num, args[0]);
@@ -110,11 +128,13 @@ void Parser::parseFile(char *filename, EdgeBuffer *buffer, Renderer *renderer) {
             continue;
         }
         if (eq(line, "apply")) {
-            buffer->apply();
+            edgeBuffer->apply();
+            triangleBuffer->apply();
             continue;
         }
         if (eq(line, "display")) {
-            renderer->drawEdgeBufferLines(buffer);
+            renderer->drawEdgeBufferLines(edgeBuffer);
+            renderer->drawTriangleBufferMesh(triangleBuffer);
             Image::writeToPPM( renderer->getImage(), "temp_image.ppm");
             char *args1[] = {"display", "temp_image.ppm", NULL};
             execvp("display", args1);
@@ -139,7 +159,7 @@ void Parser::parseFile(char *filename, EdgeBuffer *buffer, Renderer *renderer) {
             line_num++;
 
             split_args(line, args);
-            buffer->addBox(
+            triangleBuffer->addBox(
                 atof(args[0]),
                 atof(args[1]),
                 atof(args[2]),
@@ -150,6 +170,34 @@ void Parser::parseFile(char *filename, EdgeBuffer *buffer, Renderer *renderer) {
             continue;
         }
 
+        if (eq(line, "sphere")) {
+            fgets(line, 255, f);
+            line_num++;
+
+            split_args(line, args);
+            triangleBuffer->addSphere(
+                atof(args[0]),
+                atof(args[1]),
+                atof(args[2]),
+                atof(args[3])
+            );
+            continue;
+        }
+
+        if (eq(line, "torus")) {
+            fgets(line, 255, f);
+            line_num++;
+
+            split_args(line, args);
+            triangleBuffer->addTorus(
+                atof(args[0]),
+                atof(args[1]),
+                atof(args[2]),
+                atof(args[3]),
+                atof(args[4])
+            );
+            continue;
+        }
     }
 }
 

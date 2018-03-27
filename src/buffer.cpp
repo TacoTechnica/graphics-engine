@@ -4,12 +4,20 @@
 #include "buffer.h"
 #include "matrix.h"
 
-Buffer::Buffer() {
-    points = new Matrix(0);
+Buffer::Buffer(Matrix *m) {
+    points = m;
     transform = new Matrix(4,4);
     transformSetIdentity();
     pointCount = 0;
 }
+Buffer::Buffer() : Buffer(new Matrix(0)) {
+    //points = new Matrix(0);
+    //transform = new Matrix(4,4);
+    //transformSetIdentity();
+    //pointCount = 0;
+}
+
+
 Buffer::~Buffer() {
     delete points;
     delete transform;

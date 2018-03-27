@@ -6,7 +6,7 @@
 
 class Parser {
     public:
-        static void parseFile(char *dir, EdgeBuffer *buffer, Renderer *renderer);
+        static void parseFile(char *dir, Matrix *m, Renderer *renderer);
 };
 
 #endif

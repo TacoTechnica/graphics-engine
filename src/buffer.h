@@ -14,6 +14,7 @@ class Buffer {
         static const int PARAMETRIC_ACCURACY = 30;// # of lines in a curve
     public:
         Buffer();
+        Buffer(Matrix *m);
         ~Buffer();
         void addPoint(float x, float y, float z = 0);
         void transformSetIdentity();
