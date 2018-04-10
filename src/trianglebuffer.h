@@ -7,6 +7,8 @@
 
 class TriangleBuffer : public Buffer {
     public:
+        TriangleBuffer() : Buffer() {};
+        TriangleBuffer(Matrix *m) : Buffer(m) {};
         void addTriangle(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2);
         void addTriangles(Matrix *m) { Buffer::addPoints(m); }
         static Matrix *genBox(float x, float y, float z, float xlength, float ylength, float zlength);

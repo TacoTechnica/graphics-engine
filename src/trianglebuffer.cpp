@@ -10,29 +10,34 @@ void TriangleBuffer::addTriangle(float x0, float y0, float z0, float x1, float y
     addPoint(x2, y2, z2);
 
 }
+
 Matrix *TriangleBuffer::genBox(float x, float y, float z, float xl, float yl, float zl) {
     TriangleBuffer *boxBuff = new TriangleBuffer();
 
     // 3 faces from origin
-    boxBuff->addTriangle(0,0,0, x+xl,0,0, x+xl,y+yl,0);
-    boxBuff->addTriangle(0,0,0, 0,y+yl,0, x+xl,y+yl,0);
 
-    boxBuff->addTriangle(0,0,0, x+xl,0,0, x+xl,0,z+zl);
-    boxBuff->addTriangle(0,0,0, 0,0,z+zl, x+xl,0,z+zl);
+    boxBuff->addTriangle(x+xl,y+yl,z, x+xl,y,z, x,y,z);
+    boxBuff->addTriangle(x,y+yl,z, x+xl,y+yl,z, x,y,z);
+    
 
-    boxBuff->addTriangle(0,0,0, 0,0,z+zl, 0,y+yl,z+zl);
-    boxBuff->addTriangle(0,0,0, 0,y+yl,0, 0,y+yl,z+zl);
+    boxBuff->addTriangle(x+xl,y,z+zl, x,y,z, x+xl,y,z);
+    boxBuff->addTriangle(x+xl,y,z+zl, x,y,z+zl, x,y,z);
+
+    boxBuff->addTriangle( x,y,z+zl, x,y+yl,z+zl, x,y,z);
+    boxBuff->addTriangle(x,y+yl,z+zl, x,y+yl,z, x,y,z);
+    
 
     // 3 other faces from not the origin
-    boxBuff->addTriangle(x+xl,0,0, x+xl,y+yl,0, x+xl,y+yl,z+zl);
-    boxBuff->addTriangle(x+xl,0,0, x+xl,0,z+zl, x+xl,y+yl,z+zl);
+    boxBuff->addTriangle(x+xl,y+yl,z+zl, x+xl,y,z, x+xl,y+yl,z);
+    boxBuff->addTriangle(x+xl,y+yl,z+zl, x+xl,y,z+zl, x+xl,y,z);
 
-    boxBuff->addTriangle(0,0,z+zl, 0,y+yl,z+zl, x+xl,y+yl,z+zl);
-    boxBuff->addTriangle(0,0,z+zl, x+xl,0,z+zl, x+xl,y+yl,z+zl);
+    boxBuff->addTriangle(x+xl,y+yl,z+zl, x,y+yl,z+zl, x,y,z+zl);
+    boxBuff->addTriangle( x+xl,y,z+zl, x+xl,y+yl,z+zl, x,y,z+zl);
 
-    boxBuff->addTriangle(0,y+yl,0, x+xl,y+yl,0, x+xl,y+yl,z+zl);
-    boxBuff->addTriangle(0,y+yl,0, 0,y+yl,z+zl, x+xl,y+yl,z+zl);
-
+    /****************************************************
+    ****************************************************/
+    boxBuff->addTriangle(x+xl,y+yl,z+zl, x+xl,y+yl,z, x,y+yl,z);
+    boxBuff->addTriangle(x+xl,y+yl,z+zl, x,y+yl,z+zl, x,y+yl,z);
 
 
     Matrix *toCopy = new Matrix(0);
@@ -59,26 +64,26 @@ Matrix *TriangleBuffer::genSphere(float x, float y, float z, float r) {
             double theta = (double)theta_count*theta_factor;
 
             // Make a square, but in polar coordinates
-            double p1x = r*cos(theta);
-            double p1y = r*sin(theta)*cos(phi);
-            double p1z = r*sin(theta)*sin(phi);
+            double p1x = x + r*cos(theta);
+            double p1y = y + r*sin(theta)*cos(phi);
+            double p1z = z + r*sin(theta)*sin(phi);
 
-            double p2x = r*cos(theta + theta_factor);
-            double p2y = r*sin(theta + theta_factor)*cos(phi);
-            double p2z = r*sin(theta + theta_factor)*sin(phi);
+            double p2x = x + r*cos(theta + theta_factor);
+            double p2y = y + r*sin(theta + theta_factor)*cos(phi);
+            double p2z = z + r*sin(theta + theta_factor)*sin(phi);
 
-            double p3x = r*cos(theta + theta_factor);
-            double p3y = r*sin(theta + theta_factor)*cos(phi + phi_factor);
-            double p3z = r*sin(theta + theta_factor)*sin(phi + phi_factor);
+            double p3x = x + r*cos(theta + theta_factor);
+            double p3y = y + r*sin(theta + theta_factor)*cos(phi + phi_factor);
+            double p3z = z + r*sin(theta + theta_factor)*sin(phi + phi_factor);
 
-            double p4x = r*cos(theta);
-            double p4y = r*sin(theta)*cos(phi + phi_factor);
-            double p4z = r*sin(theta)*sin(phi + phi_factor);
+            double p4x = x + r*cos(theta);
+            double p4y = y + r*sin(theta)*cos(phi + phi_factor);
+            double p4z = z + r*sin(theta)*sin(phi + phi_factor);
 
             sphereBuff->addTriangle(p1x, p1y, p1z, p2x, p2y, p2z, p3x, p3y, p3z);
+            //sphereBuff->addTriangle(p1x, p1y, p1z, p4x, p4y, p4z, p3x, p3y, p3z);
             sphereBuff->addTriangle(p3x, p3y, p3z, p4x, p4y, p4z, p1x, p1y, p1z);
 
-            //sphereBuff->addPointyPoint(x + px,y + py,z + pz);
         }
     }
 

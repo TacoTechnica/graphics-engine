@@ -11,7 +11,7 @@ class Buffer {
         int pointCount;
         void add_transform(float* trans_mat);
         void addPoints(Matrix *m);
-        static const int PARAMETRIC_ACCURACY = 30;// # of lines in a curve
+        static const int PARAMETRIC_ACCURACY = 20;//30;// # of lines in a curve
     public:
         Buffer();
         Buffer(Matrix *m);

@@ -131,23 +131,51 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         if (col >= mat->getNumColumns() || col+2 >= mat->getNumColumns())
             break;
 
+        Vector3f *p0 = mat->getColumnVector(col);
+        Vector3f *p1 = mat->getColumnVector(col + 1);
+        Vector3f *p2 = mat->getColumnVector(col + 2);
+
+        Vector3f *d1 = Vector3f::getDelta(p0, p1);
+        Vector3f *d2 = Vector3f::getDelta(p0, p2);
+
+        Vector3f *normal = Vector3f::getCrossProduct(d1, d2);
+        Vector3f *view = new Vector3f(0, 0, 1);
+        float normalDotView = Vector3f::getDotProduct(normal, view);
+
+        if (normalDotView <= 0) {
+            continue; // Skip this triangle
+        }
+
+        // TODO: Replace these calls with vector calls
         drawLine( 
-            *mat->get(col, 0),
-            *mat->get(col, 1),
-            *mat->get(col+1, 0),
-            *mat->get(col+1, 1)
+            p0->getX(),
+            p0->getY(),
+            p1->getX(),
+            p1->getY()
+            //*mat->get(col, 0),
+            //*mat->get(col, 1),
+            //*mat->get(col+1, 0),
+            //*mat->get(col+1, 1)
         );
-        drawLine( 
-            *mat->get(col+1, 0),
-            *mat->get(col+1, 1),
-            *mat->get(col+2, 0),
-            *mat->get(col+2, 1)
+        drawLine(
+            p1->getX(),
+            p1->getY(),
+            p2->getX(),
+            p2->getY()
+            //*mat->get(col+1, 0),
+            //*mat->get(col+1, 1),
+            //*mat->get(col+2, 0),
+            //*mat->get(col+2, 1)
         );
-        drawLine( 
-            *mat->get(col+2, 0),
-            *mat->get(col+2, 1),
-            *mat->get(col, 0),
-            *mat->get(col, 1)
+        drawLine(
+            p2->getX(),
+            p2->getY(),
+            p0->getX(),
+            p0->getY()
+            //*mat->get(col+2, 0),
+            //*mat->get(col+2, 1),
+            //*mat->get(col, 0),
+            //*mat->get(col, 1)
         );
     }
 

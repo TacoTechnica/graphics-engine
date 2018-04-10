@@ -54,13 +54,14 @@ int main() {
     p = {0, 0, 0};
     renderer.setColor(p);
 
-    buffer->addTorus(0, 0, 0, 40, 200 - 20);
-    //buffer->addBox(-100, -100, -100, 200, 200, 200);
+    //buffer->addTorus(0, 0, 0, 40, 200 - 20);
+    buffer->addBox(-100, -100, -100, 200, 200, 200);
+    //buffer->addSphere(100,100,100,10);
     //buffer->addSphere(0, 0, 0, 100);
 
-    buffer->scale(1,1,2);
-    buffer->apply();
-    buffer->transformSetIdentity();
+    //buffer->scale(1,1,2);
+    //buffer->apply();
+    //buffer->transformSetIdentity();
 
     // box works
     buffer->rotate_y(40);

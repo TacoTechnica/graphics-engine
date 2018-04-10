@@ -2,6 +2,8 @@
 #ifndef H_MATRIX
 #define H_MATRIX
 
+#include "vector3f.h"
+
 class Matrix {
     private:
         float **values;
@@ -19,7 +21,8 @@ class Matrix {
         int getNumColumns() { return columns; }
         int getNumRows() { return rows; }
         void fillWithIdentity();
-//        static Matrix *createIdentityMatrix(int size);
+
+        Vector3f *getColumnVector(int col);
 };
 
 #endif
