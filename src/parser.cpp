@@ -27,8 +27,13 @@ void split_args(char *line, char **args) {
 
 void Parser::parseFile(char *filename, Matrix *m, Renderer *renderer) {
 
-    EdgeBuffer *edgeBuffer = new EdgeBuffer(m);
-    TriangleBuffer *triangleBuffer = new TriangleBuffer(m);
+    Matrix *edgeMat = new Matrix(4), 
+           *triangleMat = new Matrix(4);
+    m->copyTo(edgeMat);
+    m->copyTo(triangleMat);
+
+    EdgeBuffer *edgeBuffer = new EdgeBuffer(edgeMat);
+    TriangleBuffer *triangleBuffer = new TriangleBuffer(triangleMat);
 
     FILE *f;
     char line[256];
@@ -200,6 +205,8 @@ void Parser::parseFile(char *filename, Matrix *m, Renderer *renderer) {
             continue;
         }
     }
+    delete edgeMat;
+    delete triangleMat;
 }
 
 

@@ -43,9 +43,10 @@ void readObjFile(char *dir, EdgeBuffer *buffer) {
 }
 
 int main() {
-    Image img(400, 400);
+    Image img(500, 500);
     Renderer renderer(&img);
-    TriangleBuffer *buffer = new TriangleBuffer();
+    Matrix matrix(4);
+    //TriangleBuffer *buffer = new TriangleBuffer();
 
     struct Color p = {255, 255, 255};
     renderer.setColor(p);
@@ -54,8 +55,17 @@ int main() {
     p = {0, 0, 0};
     renderer.setColor(p);
 
-    //buffer->addTorus(0, 0, 0, 40, 200 - 20);
-    buffer->addBox(-100, -100, -100, 200, 200, 200);
+	Parser::parseFile("src/script", &matrix , &renderer);
+
+    //////////////////////////////////////////////////
+    // End
+	exit(0);
+
+    /*
+
+
+    buffer->addTorus(0, 0, 0, 40, 200 - 20);
+    //buffer->addBox(-100, -100, -100, 200, 200, 200);
     //buffer->addSphere(100,100,100,10);
     //buffer->addSphere(0, 0, 0, 100);
 
@@ -79,14 +89,9 @@ int main() {
 
     Image::writeToPPM(&img, "image.ppm");
 
-    //////////////////////////////////////////////////
-    // End
     exit(0);
     //////////////////////////////////////////////////
-    /*
-    Parser::parseFile("src/script", buffer, &renderer);
-
-    exit(0);
+    / *
 
     readObjFile("res/Banana.objfile", buffer);
 

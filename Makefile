@@ -17,7 +17,7 @@ OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(BIN_DIR)/%.o, $(SRCS))
 
 all: bin_dir_exists $(PROGRAM_NAME)
 	./$(PROGRAM_NAME)
-	display *.ppm
+	#display *.ppm
 
 $(PROGRAM_NAME): $(HEADERS) $(OBJS)
 	$(CC) -o $@ $^ 

@@ -127,12 +127,15 @@ Matrix *TriangleBuffer::genTorus(float x, float y, float z, float rCircle, float
             double p3y = y + c2y + rCircle*sin(theta + angle_factor)*sin(phi + angle_factor);
             double p3z = z + rCircle*cos(theta + angle_factor);
 
-            double p4x = x + c1x + rCircle*sin(theta)*cos(phi + angle_factor);
-            double p4y = y + c1y + rCircle*sin(theta)*sin(phi + angle_factor);
+            double p4x = x + c2x + rCircle*sin(theta)*cos(phi + angle_factor);
+            double p4y = y + c2y + rCircle*sin(theta)*sin(phi + angle_factor);
             double p4z = z + rCircle*cos(theta);
 
             torusBuff->addTriangle(p1x, p1y, p1z, p2x, p2y, p2z, p3x, p3y, p3z);
+
             torusBuff->addTriangle(p3x, p3y, p3z, p4x, p4y, p4z, p1x, p1y, p1z);
+            //torusBuff->addTriangle(p2x, p1y, p1z, p4x, p4y, p4z, p3x, p3y, p3z);
+
             //torusBuff->addPointyPoint(x + cx + px,y + cy + py,z + pz);
         }
     }
