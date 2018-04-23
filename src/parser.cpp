@@ -34,7 +34,6 @@ void Parser::parseFile(char *filename, Matrix *m, Renderer *renderer) {
 
     EdgeBuffer *edgeBuffer = new EdgeBuffer(edgeMat);
     TriangleBuffer *triangleBuffer = new TriangleBuffer(triangleMat);
-
     FILE *f;
     char line[256];
     int line_num = 0;
@@ -134,8 +133,9 @@ void Parser::parseFile(char *filename, Matrix *m, Renderer *renderer) {
             continue;
         }
         if (eq(line, "apply")) {
-            edgeBuffer->apply();
-            triangleBuffer->apply();
+            printf("[parser.cpp]: DEPRICATED FUNCTION: apply");
+            //edgeBuffer->apply();
+            //triangleBuffer->apply();
             continue;
         }
         if (eq(line, "display")) {
@@ -204,6 +204,19 @@ void Parser::parseFile(char *filename, Matrix *m, Renderer *renderer) {
             );
             continue;
         }
+
+        if (eq(line, "pop")) {
+            triangleBuffer->transformPop();
+            edgeBuffer->transformPop();
+            continue;
+        }
+        if (eq(line, "push")) {
+            triangleBuffer->transformPush();
+            edgeBuffer->transformPush();
+            continue;
+        }
+
+        printf("[parser.cpp] UNIDENTIFIED COMMAND: %s\n", line);
     }
     delete edgeMat;
     delete triangleMat;

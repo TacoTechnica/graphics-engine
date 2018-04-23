@@ -14,6 +14,7 @@ void TriangleBuffer::addTriangle(float x0, float y0, float z0, float x1, float y
 Matrix *TriangleBuffer::genBox(float x, float y, float z, float xl, float yl, float zl) {
     TriangleBuffer *boxBuff = new TriangleBuffer();
 
+    yl *= -1;
     // 3 faces from origin
 
     boxBuff->addTriangle(x+xl,y+yl,z, x+xl,y,z, x,y,z);
@@ -37,7 +38,8 @@ Matrix *TriangleBuffer::genBox(float x, float y, float z, float xl, float yl, fl
     /****************************************************
     ****************************************************/
     boxBuff->addTriangle(x+xl,y+yl,z+zl, x+xl,y+yl,z, x,y+yl,z);
-    boxBuff->addTriangle(x+xl,y+yl,z+zl, x,y+yl,z+zl, x,y+yl,z);
+    boxBuff->addTriangle(x,x+yl,z,  x,y+yl,z+zl, x+xl,y+yl,z+zl);
+    //boxBuff->addTriangle(x+xl,y+yl,z+zl, x,y+yl,z+zl, x,y+yl,z);
 
 
     Matrix *toCopy = new Matrix(0);

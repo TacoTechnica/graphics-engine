@@ -11,6 +11,8 @@
 #include "matrix.h"
 #include "parser.h"
 
+#include "stack.h"
+
 void readObjFile(char *dir, EdgeBuffer *buffer) {
     char letters[80720]; // Should use stat to grab file size, but I'm lazy
 
@@ -40,6 +42,53 @@ void readObjFile(char *dir, EdgeBuffer *buffer) {
             index = 0;
         }
     } 
+}
+
+int mainTEST() {
+    Image img(500, 500);
+    Renderer renderer(&img);
+    TriangleBuffer *buffer = new TriangleBuffer();
+
+    struct Color p = {255, 255, 255};
+    renderer.setColor(p);
+    renderer.refill();
+
+    p = {0, 0, 0};
+    renderer.setColor(p);
+
+
+    buffer->addTorus(200, 200, 0, 40, 200 - 20);
+    //buffer->addBox(-100, -100, -100, 200, 200, 200);
+    //buffer->addSphere(100,100,100,10);
+    //buffer->addSphere(0, 0, 0, 100);
+
+    //buffer->scale(1,1,2);
+    //buffer->apply();
+    //buffer->transformSetIdentity();
+
+    // box works
+    renderer.drawTriangleBufferMesh(buffer);
+
+    Image::writeToPPM(&img, "image.ppm");
+
+    exit(0);
+    return 0;
+}
+
+int mainSTACk() {
+//    Stack<int> stack;
+//    int a = 1, b = 2, c = 3, d = 4;
+//    stack.push(&a);
+//    stack.push(&b);
+//    stack.push(&c);
+//    stack.push(&d);
+//
+//    printf("STACK peek? %d\n", *stack.peek());
+//    while(stack.peek() != nullptr) {
+//        printf("Stack pop: %d\n", *stack.pop());
+//    }
+    
+    return 0;
 }
 
 int main() {

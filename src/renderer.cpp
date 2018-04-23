@@ -1,18 +1,32 @@
 
 //#include<stdio.h>
 #include<string.h>
+#include<float.h>
 
 #include "renderer.h"
 #include "edgebuffer.h"
+
+Renderer::Renderer(Image *img) {
+    this->img = img;
+    zbuffer = new Matrix(img->getWidth(), img->getHeight());
+    clearZBuffer();
+}
 
 /** plot(x,y)
  *
  *      Plots a single pixel on our image
  */
-void Renderer::plot(int x, int y) {
+void Renderer::plot(int x, int y, float z) {
+    // Flip the y axis
     y = getImage()->getHeight() - y;
-    if (x >= 0 && y >= 0 && x < img->getWidth() && y < img->getHeight())
-        memcpy(img->getPixel(x,y), &color, sizeof(struct Color));
+    // If we're within the image
+    if (x >= 0 && y >= 0 && x < img->getWidth() && y < img->getHeight()) {
+        // If we're above the z value on this pixel, replace this pixel
+        if (*zbuffer->get(x, y) < z) {
+            memcpy(img->getPixel(x,y), &color, sizeof(struct Color));
+            *zbuffer->get(x, y) = z;
+        }
+    }
 }
 
 /** refill()
@@ -23,16 +37,18 @@ void Renderer::refill() {
     int xx, yy;
     for(yy = 0; yy < img->getHeight(); yy++) {
         for(xx = 0; xx < img->getWidth(); xx++) {
-            plot(xx,yy);
+            plot(xx,yy, FLT_MAX);
         }
     }
+    clearZBuffer();
 }
 
 /* drawLine(x0, y0, x1, y1)
  *
  *      Draws a line from (x0, y0) to (x1, y1) on our image
  */
-void Renderer::drawLine(int x0, int y0, int x1, int y1) {
+void Renderer::drawLine(int x0, int y0, float z0, int x1, int y1, float z1) {
+
     // swapping
     int swap;
     if (x0 > x1) {
@@ -50,12 +66,15 @@ void Renderer::drawLine(int x0, int y0, int x1, int y1) {
     int b = -dx;
     int d;
 
+    float dz = z1 - z0;
+
     if (dy >= 0) { // Quadrant 1 and 3
         // Octant 1 and 5
         if (dy <= dx) {
             d = 2*a + b;
             while(x0 <= x1) {
-                plot(x0, y0);
+                float zNow = z0 + dz * (float)x0 / (float)dx;
+                plot(x0, y0, zNow);
                 if (d > 0) {
                     y0++;
                     d += 2*b;
@@ -67,7 +86,8 @@ void Renderer::drawLine(int x0, int y0, int x1, int y1) {
         } else {
             d = a + 2*b;
             while(y0 <= y1) {
-                plot(x0, y0);
+                float zNow = z0 + dz * (float)y0 / (float)dy;
+                plot(x0, y0, zNow);
                 if (d < 0) {
                     x0++;
                     d += 2*a;
@@ -83,7 +103,8 @@ void Renderer::drawLine(int x0, int y0, int x1, int y1) {
         if (-dy <= dx) {
             d = -2*a + b;
             while(x0 <= x1) {
-                plot(x0, y0);
+                float zNow = z0 + dz * (float)x0 / (float)dx;
+                plot(x0, y0, zNow);
                 if (d > 0) {
                     y0--;
                     d += 2*b;
@@ -95,7 +116,8 @@ void Renderer::drawLine(int x0, int y0, int x1, int y1) {
         } else {
             d = -a + 2*b;
             while(y0 >= y1) {
-                plot(x0, y0);
+                float zNow = z0 + dz * (float)y0 / (float)dy;
+                plot(x0, y0, zNow);
                 if (d < 0) {
                     x0++;
                     d -= 2*a;
@@ -118,8 +140,10 @@ void Renderer::drawEdgeBufferLines(EdgeBuffer *buffer) {
         drawLine( 
             *mat->get(col, 0),
             *mat->get(col, 1),
+            *mat->get(col, 2),
             *mat->get(col+1, 0),
-            *mat->get(col+1, 1)
+            *mat->get(col+1, 1),
+            *mat->get(col+1, 2)
         );
     }
 }
@@ -146,12 +170,13 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
             continue; // Skip this triangle
         }
 
-        // TODO: Replace these calls with vector calls
         drawLine( 
             p0->getX(),
             p0->getY(),
+            p0->getZ(),
             p1->getX(),
-            p1->getY()
+            p1->getY(),
+            p1->getZ()
             //*mat->get(col, 0),
             //*mat->get(col, 1),
             //*mat->get(col+1, 0),
@@ -160,8 +185,10 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         drawLine(
             p1->getX(),
             p1->getY(),
+            p1->getZ(),
             p2->getX(),
-            p2->getY()
+            p2->getY(),
+            p2->getZ()
             //*mat->get(col+1, 0),
             //*mat->get(col+1, 1),
             //*mat->get(col+2, 0),
@@ -170,13 +197,29 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         drawLine(
             p2->getX(),
             p2->getY(),
+            p2->getZ(),
             p0->getX(),
-            p0->getY()
+            p0->getY(),
+            p0->getZ()
             //*mat->get(col+2, 0),
             //*mat->get(col+2, 1),
             //*mat->get(col, 0),
             //*mat->get(col, 1)
         );
+
+        // SCANLINE
+        float topY = max(p0->getY(), p1->getY(), p2->getY());
+        float botY = min(p0->getY(), p1->getY(), p2->getY());
+        float midY = //FILLME
     }
 
+}
+
+void Renderer::clearZBuffer() {
+    int xx, yy;
+    for(xx = 0; xx < zbuffer->getNumColumns(); xx++) {
+        for(yy = 0; yy < zbuffer->getNumRows(); yy++) {
+            *zbuffer->get(xx,yy) = -1 * FLT_MAX;
+        }
+    }
 }
