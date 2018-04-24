@@ -208,9 +208,82 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         );
 
         // SCANLINE
-        float topY = max(p0->getY(), p1->getY(), p2->getY());
-        float botY = min(p0->getY(), p1->getY(), p2->getY());
-        float midY = //FILLME
+
+        // Pick top, bottom and middle points
+        Vector3f *ptop, *pmiddleY, *pbot;  // y
+        if (       p0->getY() > p1->getY() && p0->getY() > p2->getY()) {
+            ptop = p0;
+            if (p1->getY() > p2->getY()) {
+                pmiddleY = p1;
+                pbot = p2;
+            } else {
+                pmiddleY = p2;
+                pbot = p2;
+            }
+        } else if (p1->getY() > p0->getY() && p1->getY() > p2->getY()) {
+            ptop = p1;
+            if (p2->getY() > p0->getY()) {
+                pmiddleY = p2;
+                pbot = p0;
+            } else {
+                pmiddleY = p0;
+                pbot = p2;
+            }
+        } else {
+            ptop = p2;
+            if (p1->getY() > p0->getY()) {
+                pmiddleY = p1;
+                pbot = p0;
+            } else {
+                pmiddleY = p0;
+                pbot = p1;
+            }
+        }
+
+        int currentY;
+        float yStart = pbot->getY();
+        float xStart = pbot->getX();
+        float zStart = pbot->getZ();
+
+        // Left side of triangle, delta
+        float dxLeft = ptop->getX() - pbot->getX();
+        float dyLeft = ptop->getY() - pbot->getY();
+        float dzLeft = ptop->getZ() - pbot->getZ();
+
+        // Right side of triangle, delta
+        float dxRight = pmiddleY->getX() - pbot->getX();
+        float dyRight = pmiddleY->getY() - pbot->getY();
+        float dzRight = pmiddleZ->getZ() - pbot->getZ();
+
+        bool switched = false;
+        for(currentY = 0; !(currentY >= dyRight && switched); currentY++) {
+            // Offset left side if we're switched
+            float xleft =  (dxLeft  / dyLeft ) * (currentY + switched? dyRight : 0); // TODO: Redo this
+            float xright = (dxRight / dyRight) * currentY;
+            float zleft =  (dzLeft  / dyLeft)  * (currentY + switched? dyRight : 0);
+            float zright = (dzRight / dyRight) * currentY;
+            
+            xleft += xStart;
+            zleft += zStart;
+            xright += switched? xStart : pmiddle->getX();
+            zright += switched? zStart : pmiddle->getZ();
+
+            drawLine(xleft,  currentY + switched? dyRight : 0, zleft,
+                     xright, currentY + switched? dyRight : 0, zright);
+
+            // Switch after reaching the middle!
+            if (currentY >= dyRight) {
+                if (switched) break;
+                switched = true;
+
+                currentY = 0;
+
+                dxRight = ptop->getX() - pmiddleY->getX();
+                dyRight = ptop->getY() - pmiddleY->getY();
+                dzRight = ptop->getZ() - pmiddleY->getZ();
+            }
+        }
+
     }
 
 }
