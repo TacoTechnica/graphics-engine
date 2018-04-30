@@ -1,5 +1,6 @@
 
 //#include<stdio.h>
+#include<stdlib.h>
 #include<string.h>
 #include<float.h>
 
@@ -149,11 +150,17 @@ void Renderer::drawEdgeBufferLines(EdgeBuffer *buffer) {
 }
 
 void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
+
+
     Matrix *mat = buffer->getPoints();
     int col;
     for(col = 0; col < mat->getNumColumns(); col+=3) {
         if (col >= mat->getNumColumns() || col+2 >= mat->getNumColumns())
             break;
+
+        struct Color p = {100, 100, 100};
+        //struct Color p = {rand(), rand(), rand()};
+        setColor(p);
 
         Vector3f *p0 = mat->getColumnVector(col);
         Vector3f *p1 = mat->getColumnVector(col + 1);
@@ -167,9 +174,107 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         float normalDotView = Vector3f::getDotProduct(normal, view);
 
         if (normalDotView <= 0) {
-            continue; // Skip this triangle
+            p = {255, 0, 0};
+            //struct Color p = {rand(), rand(), rand()};
+            setColor(p);
+            //continue; // Skip this triangle
         }
 
+
+        // SCANLINE
+
+        // Pick top, bottom and middle points
+        Vector3f *ptop, *pmiddleY, *pbot;  // y
+        if (       p0->getY() > p1->getY() && p0->getY() > p2->getY()) {
+            ptop = p0;
+            if (p1->getY() > p2->getY()) {
+                pmiddleY = p1;
+                pbot = p2;
+            } else {
+                pmiddleY = p2;
+                pbot = p1;
+            }
+        } else if (p1->getY() > p0->getY() && p1->getY() > p2->getY()) {
+            ptop = p1;
+            if (p2->getY() > p0->getY()) {
+                pmiddleY = p2;
+                pbot = p0;
+            } else {
+                pmiddleY = p0;
+                pbot = p2;
+            }
+        } else {
+            ptop = p2;
+            if (p1->getY() > p0->getY()) {
+                pmiddleY = p1;
+                pbot = p0;
+            } else {
+                pmiddleY = p0;
+                pbot = p1;
+            }
+        }
+
+        int currentY;
+        float xStart = pbot->getX();
+        float yStart = pbot->getY();
+        float zStart = pbot->getZ();
+
+        // Left side of triangle, delta
+        float dxLeft = ptop->getX() - pbot->getX();
+        float dyLeft = ptop->getY() - pbot->getY();
+        float dzLeft = ptop->getZ() - pbot->getZ();
+
+        // Right side of triangle, delta
+        float dxRight = pmiddleY->getX() - pbot->getX();
+        float dyRight = pmiddleY->getY() - pbot->getY();
+        float dzRight = pmiddleY->getZ() - pbot->getZ();
+
+        for(currentY = 0; currentY < dyRight; currentY++) {
+            float yy = (float)currentY;
+            float xleft = (dxLeft / dyLeft) * yy;
+            float xright = (dxRight / dyRight) * yy;
+            float zleft = (dzLeft / dyLeft) * yy;
+            float zright = (dzRight / dyRight) * yy;
+
+            xleft +=  xStart;
+            zleft +=  zStart;
+            xright += xStart;
+            zright += zStart;
+            yy     += yStart;
+            drawLine(xleft,  yy, zleft,
+                     xright, yy, zright);
+        }
+
+        dxRight = ptop->getX() - pmiddleY->getX();
+        dyRight = ptop->getY() - pmiddleY->getY();
+        dzRight = ptop->getZ() - pmiddleY->getZ();
+
+        // TODO: Put me in a repeating loop
+        for(currentY = 0; currentY < dyRight; currentY++) {
+            float yyLeft = (float)currentY + (pmiddleY->getY() - yStart);
+            float yyRight = (float)currentY;
+
+            float xleft = (dxLeft / dyLeft) * yyLeft;
+            float xright = (dxRight / dyRight) * yyRight;
+            float zleft = (dzLeft / dyLeft) * yyLeft;
+            float zright = (dzRight / dyRight) * yyRight;
+
+            xleft +=  xStart;
+            zleft +=  zStart;
+            xright += pmiddleY->getX();
+            zright += pmiddleY->getZ();
+            yyLeft += yStart;
+            drawLine(xleft,  yyLeft, zleft,
+                     xright, yyLeft, zright);
+        }
+
+        // Draw the line
+        p = {0, 0, 0};
+        setColor(p);
+
+        if (normalDotView <= 0) {
+            continue;
+        }
         drawLine( 
             p0->getX(),
             p0->getY(),
@@ -207,82 +312,34 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
             //*mat->get(col, 1)
         );
 
-        // SCANLINE
+        //bool switched = false;
+        //for(currentY = 0; !(currentY >= dyRight && switched); currentY++) {
+        //    // Offset left side if we're switched
+        //    float xleft =  (dxLeft  / dyLeft ) * (currentY + switched? dyRight : 0); // TODO: Redo this
+        //    float xright = (dxRight / dyRight) * currentY;
+        //    float zleft =  (dzLeft  / dyLeft)  * (currentY + switched? dyRight : 0);
+        //    float zright = (dzRight / dyRight) * currentY;
+        //    
+        //    xleft += xStart;
+        //    zleft += zStart;
+        //    xright += switched? xStart : pmiddle->getX();
+        //    zright += switched? zStart : pmiddle->getZ();
 
-        // Pick top, bottom and middle points
-        Vector3f *ptop, *pmiddleY, *pbot;  // y
-        if (       p0->getY() > p1->getY() && p0->getY() > p2->getY()) {
-            ptop = p0;
-            if (p1->getY() > p2->getY()) {
-                pmiddleY = p1;
-                pbot = p2;
-            } else {
-                pmiddleY = p2;
-                pbot = p2;
-            }
-        } else if (p1->getY() > p0->getY() && p1->getY() > p2->getY()) {
-            ptop = p1;
-            if (p2->getY() > p0->getY()) {
-                pmiddleY = p2;
-                pbot = p0;
-            } else {
-                pmiddleY = p0;
-                pbot = p2;
-            }
-        } else {
-            ptop = p2;
-            if (p1->getY() > p0->getY()) {
-                pmiddleY = p1;
-                pbot = p0;
-            } else {
-                pmiddleY = p0;
-                pbot = p1;
-            }
-        }
+        //    drawLine(xleft,  currentY + switched? dyRight : 0, zleft,
+        //             xright, currentY + switched? dyRight : 0, zright);
 
-        int currentY;
-        float yStart = pbot->getY();
-        float xStart = pbot->getX();
-        float zStart = pbot->getZ();
+        //    // Switch after reaching the middle!
+        //    if (currentY >= dyRight) {
+        //        if (switched) break;
+        //        switched = true;
 
-        // Left side of triangle, delta
-        float dxLeft = ptop->getX() - pbot->getX();
-        float dyLeft = ptop->getY() - pbot->getY();
-        float dzLeft = ptop->getZ() - pbot->getZ();
+        //        currentY = 0;
 
-        // Right side of triangle, delta
-        float dxRight = pmiddleY->getX() - pbot->getX();
-        float dyRight = pmiddleY->getY() - pbot->getY();
-        float dzRight = pmiddleZ->getZ() - pbot->getZ();
-
-        bool switched = false;
-        for(currentY = 0; !(currentY >= dyRight && switched); currentY++) {
-            // Offset left side if we're switched
-            float xleft =  (dxLeft  / dyLeft ) * (currentY + switched? dyRight : 0); // TODO: Redo this
-            float xright = (dxRight / dyRight) * currentY;
-            float zleft =  (dzLeft  / dyLeft)  * (currentY + switched? dyRight : 0);
-            float zright = (dzRight / dyRight) * currentY;
-            
-            xleft += xStart;
-            zleft += zStart;
-            xright += switched? xStart : pmiddle->getX();
-            zright += switched? zStart : pmiddle->getZ();
-
-            drawLine(xleft,  currentY + switched? dyRight : 0, zleft,
-                     xright, currentY + switched? dyRight : 0, zright);
-
-            // Switch after reaching the middle!
-            if (currentY >= dyRight) {
-                if (switched) break;
-                switched = true;
-
-                currentY = 0;
-
-                dxRight = ptop->getX() - pmiddleY->getX();
-                dyRight = ptop->getY() - pmiddleY->getY();
-                dzRight = ptop->getZ() - pmiddleY->getZ();
-            }
-        }
+        //        dxRight = ptop->getX() - pmiddleY->getX();
+        //        dyRight = ptop->getY() - pmiddleY->getY();
+        //        dzRight = ptop->getZ() - pmiddleY->getZ();
+        //    }
+        //}
 
     }
 

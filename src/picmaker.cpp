@@ -57,10 +57,12 @@ int mainTEST() {
     renderer.setColor(p);
 
 
-    buffer->addTorus(200, 200, 0, 40, 200 - 20);
+    //buffer->addTorus(200, 200, 0, 40, 200 - 20);
     //buffer->addBox(-100, -100, -100, 200, 200, 200);
-    //buffer->addSphere(100,100,100,10);
+    buffer->rotate_z(45);
+    buffer->addSphere(100,100,100,200);
     //buffer->addSphere(0, 0, 0, 100);
+
 
     //buffer->scale(1,1,2);
     //buffer->apply();
@@ -72,22 +74,6 @@ int mainTEST() {
     Image::writeToPPM(&img, "image.ppm");
 
     exit(0);
-    return 0;
-}
-
-int mainSTACk() {
-//    Stack<int> stack;
-//    int a = 1, b = 2, c = 3, d = 4;
-//    stack.push(&a);
-//    stack.push(&b);
-//    stack.push(&c);
-//    stack.push(&d);
-//
-//    printf("STACK peek? %d\n", *stack.peek());
-//    while(stack.peek() != nullptr) {
-//        printf("Stack pop: %d\n", *stack.pop());
-//    }
-    
     return 0;
 }
 

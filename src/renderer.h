@@ -22,7 +22,7 @@ class Renderer {
         void refill();
         Color getColor() {return color;}
         Image *getImage() {return img;}
-        
+
         void drawEdgeBufferLines(EdgeBuffer *buffer);
         void drawTriangleBufferMesh(TriangleBuffer *buffer);
 
