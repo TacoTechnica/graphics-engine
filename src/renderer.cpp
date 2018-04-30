@@ -158,8 +158,8 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         if (col >= mat->getNumColumns() || col+2 >= mat->getNumColumns())
             break;
 
-        struct Color p = {100, 100, 100};
-        //struct Color p = {rand(), rand(), rand()};
+        //struct Color p = {100, 100, 100};
+        struct Color p = {rand(), rand(), rand()};
         setColor(p);
 
         Vector3f *p0 = mat->getColumnVector(col);
@@ -174,42 +174,42 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         float normalDotView = Vector3f::getDotProduct(normal, view);
 
         if (normalDotView <= 0) {
-            p = {255, 0, 0};
+            //p = {255, 0, 0};
             //struct Color p = {rand(), rand(), rand()};
-            setColor(p);
-            //continue; // Skip this triangle
+            //setColor(p);
+            continue; // Skip this triangle
         }
 
 
         // SCANLINE
 
         // Pick top, bottom and middle points
-        Vector3f *ptop, *pmiddleY, *pbot;  // y
+        Vector3f *ptop, *pmid, *pbot;  // y
         if (       p0->getY() > p1->getY() && p0->getY() > p2->getY()) {
             ptop = p0;
             if (p1->getY() > p2->getY()) {
-                pmiddleY = p1;
+                pmid = p1;
                 pbot = p2;
             } else {
-                pmiddleY = p2;
+                pmid = p2;
                 pbot = p1;
             }
         } else if (p1->getY() > p0->getY() && p1->getY() > p2->getY()) {
             ptop = p1;
             if (p2->getY() > p0->getY()) {
-                pmiddleY = p2;
+                pmid = p2;
                 pbot = p0;
             } else {
-                pmiddleY = p0;
+                pmid = p0;
                 pbot = p2;
             }
         } else {
             ptop = p2;
             if (p1->getY() > p0->getY()) {
-                pmiddleY = p1;
+                pmid = p1;
                 pbot = p0;
             } else {
-                pmiddleY = p0;
+                pmid = p0;
                 pbot = p1;
             }
         }
@@ -225,9 +225,9 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         float dzLeft = ptop->getZ() - pbot->getZ();
 
         // Right side of triangle, delta
-        float dxRight = pmiddleY->getX() - pbot->getX();
-        float dyRight = pmiddleY->getY() - pbot->getY();
-        float dzRight = pmiddleY->getZ() - pbot->getZ();
+        float dxRight = pmid->getX() - pbot->getX();
+        float dyRight = pmid->getY() - pbot->getY();
+        float dzRight = pmid->getZ() - pbot->getZ();
 
         for(currentY = 0; currentY < dyRight; currentY++) {
             float yy = (float)currentY;
@@ -245,13 +245,13 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
                      xright, yy, zright);
         }
 
-        dxRight = ptop->getX() - pmiddleY->getX();
-        dyRight = ptop->getY() - pmiddleY->getY();
-        dzRight = ptop->getZ() - pmiddleY->getZ();
+        dxRight = ptop->getX() - pmid->getX();
+        dyRight = ptop->getY() - pmid->getY();
+        dzRight = ptop->getZ() - pmid->getZ();
 
         // TODO: Put me in a repeating loop
         for(currentY = 0; currentY < dyRight; currentY++) {
-            float yyLeft = (float)currentY + (pmiddleY->getY() - yStart);
+            float yyLeft = (float)currentY + (pmid->getY() - yStart);
             float yyRight = (float)currentY;
 
             float xleft = (dxLeft / dyLeft) * yyLeft;
@@ -261,20 +261,17 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
 
             xleft +=  xStart;
             zleft +=  zStart;
-            xright += pmiddleY->getX();
-            zright += pmiddleY->getZ();
-            yyLeft += yStart;
-            drawLine(xleft,  yyLeft, zleft,
-                     xright, yyLeft, zright);
+            xright += pmid->getX();
+            zright += pmid->getZ();
+            float yy = yyLeft + yStart;
+            drawLine(xleft,  yy, zleft,
+                     xright, yy, zright);
         }
 
         // Draw the line
         p = {0, 0, 0};
         setColor(p);
 
-        if (normalDotView <= 0) {
-            continue;
-        }
         drawLine( 
             p0->getX(),
             p0->getY(),
@@ -335,9 +332,9 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
 
         //        currentY = 0;
 
-        //        dxRight = ptop->getX() - pmiddleY->getX();
-        //        dyRight = ptop->getY() - pmiddleY->getY();
-        //        dzRight = ptop->getZ() - pmiddleY->getZ();
+        //        dxRight = ptop->getX() - pmid->getX();
+        //        dyRight = ptop->getY() - pmid->getY();
+        //        dzRight = ptop->getZ() - pmid->getZ();
         //    }
         //}
 
