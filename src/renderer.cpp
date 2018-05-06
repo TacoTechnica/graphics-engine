@@ -23,7 +23,7 @@ void Renderer::plot(int x, int y, float z) {
     // If we're within the image
     if (x >= 0 && y >= 0 && x < img->getWidth() && y < img->getHeight()) {
         // If we're above the z value on this pixel, replace this pixel
-        if (*zbuffer->get(x, y) < z) {
+        if (*zbuffer->get(x, y) <= z) {
             memcpy(img->getPixel(x,y), &color, sizeof(struct Color));
             *zbuffer->get(x, y) = z;
         }

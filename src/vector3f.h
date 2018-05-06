@@ -3,6 +3,7 @@
 #define VECTOR3F
 
 #include<math.h>
+#include "image.h"
 
 class Vector3f {
     private:
@@ -22,7 +23,20 @@ class Vector3f {
         void add(Vector3f *v)  { this->x += v->x; this->y += v->y; this->z += v->z; }
         void multiply(float m) { this->x *= m; this->y *= m; this->z *= m; }
 
+        void multiplyComponents(Vector3f *v) { this->x *= v->x; this->y *= v->y; this->z *= v->z; }
+
         Vector3f *makeCopy();
+
+        struct Color toColor() {
+            struct Color col = { (unsigned char)min(x,255) , (unsigned char)min(y,255), (unsigned char)min(z,255) };
+            return col;
+        }
+
+        // Operators
+        const Vector3f operator+(const Vector3f &vec);
+        const Vector3f operator-(const Vector3f &vec);
+        const Vector3f operator*(const float val);
+        const Vector3f operator/(const float val);
 
         static float getDotProduct(Vector3f *v1, Vector3f *v2);
         static Vector3f *getCrossProduct(Vector3f *v1, Vector3f *v2);

@@ -32,3 +32,41 @@ Vector3f *Vector3f::getDelta(Vector3f *v1, Vector3f *v2) {
                         v2->z - v1->z
                );
 }
+const Vector3f Vector3f::operator+(const Vector3f &vec) {
+    Vector3f result = this->getCopy();
+    result->x += vec.x;
+    result->y += vec.y;
+    return result;
+}
+
+const Vector3f Vector3f::operator-(const Vector3f &vec) {
+    Vector3f result = this->getCopy();
+    result->x -= vec.x;
+    result->y -= vec.y;
+    return result;
+}
+const Vector3f Vector3f::operator*(const float val) {
+    Vector3f result = this->getCopy();
+    result->x *= val;
+    result->y *= val;
+    return result;
+}
+
+const Vector3f Vector3f::operator/(const float val) {
+    Vector3f result = this->getCopy();
+    result->x /= val;
+    result->y /= val;
+    return result;
+}
+
+Vector &Vector::operator+=(const Vector3f &vec) {
+    x += vec.x;
+    y += vec.y;
+    return *this;
+}
+
+Vector &Vector::operator-=(const Vector3f &vec) {
+    x -= vec.x;
+    y -= vec.y;
+    return *this;
+}
