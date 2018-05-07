@@ -5,6 +5,9 @@ BIN_DIR = bin
 
 PROGRAM_NAME = render.out
 
+OBJCOMPILE_PARAMS = -std=c++0x
+EXECCOMPILE_PARAMS = $(OBJCOMPILE_PARAMS)
+
 #####################################################################
 
 rwildcard = $(foreach d, $(wildcard $1*), $(call rwildcard, $d/, $2) $(filter $(subst *, %, $2), $d))
@@ -20,11 +23,11 @@ all: bin_dir_exists $(PROGRAM_NAME)
 	#display *.ppm
 
 $(PROGRAM_NAME): $(HEADERS) $(OBJS)
-	$(CC) -o $@ $^ 
+	$(CC) -o $@ $^ $(EXECCOMPILE_PARAMS)
 
 
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CC)  -c $< -o $@
+	$(CC)  -c $< -o $@ $(OBJCOMPILE_PARAMS)
 
 bin_dir_exists:
 	mkdir -p $(BIN_DIR)

@@ -5,12 +5,14 @@
 #include "image.h"
 #include "edgebuffer.h"
 #include "trianglebuffer.h"
+#include "lighting.h"
 
 class Renderer {
     private:
         Color color;
         Image *img;
         Matrix *zbuffer;
+        Light *light;
     public:
         Renderer(Image *img);
         ~Renderer() {

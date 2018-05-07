@@ -27,16 +27,29 @@ class Vector3f {
 
         Vector3f *makeCopy();
 
+        void print();
+
         struct Color toColor() {
-            struct Color col = { (unsigned char)min(x,255) , (unsigned char)min(y,255), (unsigned char)min(z,255) };
+            struct Color col = { (unsigned char)fmin(x,255) , (unsigned char)fmin(y,255), (unsigned char)fmin(z,255) };
             return col;
         }
 
         // Operators
-        const Vector3f operator+(const Vector3f &vec);
-        const Vector3f operator-(const Vector3f &vec);
-        const Vector3f operator*(const float val);
-        const Vector3f operator/(const float val);
+        //Vector3f *operator+( Vector3f &vec);
+        //Vector3f *operator-( Vector3f &vec);
+        //Vector3f *operator*( float val);
+        //Vector3f *operator/( float val);
+         Vector3f operator+( Vector3f &vec);
+         Vector3f operator-( Vector3f &vec);
+         Vector3f operator*( float val);
+         Vector3f operator/( float val);
+        // Vector3f operator*( float val,  Vector3f &vec);
+        // Vector3f operator/( float val,  Vector3f &vec);
+
+        Vector3f &operator+=( Vector3f &vec);
+        Vector3f &operator-=( Vector3f &vec);
+        Vector3f &operator*=( float val);
+        Vector3f &operator/=( float val);
 
         static float getDotProduct(Vector3f *v1, Vector3f *v2);
         static Vector3f *getCrossProduct(Vector3f *v1, Vector3f *v2);

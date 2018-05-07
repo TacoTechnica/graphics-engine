@@ -6,11 +6,24 @@
 
 #include "renderer.h"
 #include "edgebuffer.h"
+#include "lighting.h"
+
+#define DRAW_LINES false
 
 Renderer::Renderer(Image *img) {
     this->img = img;
     zbuffer = new Matrix(img->getWidth(), img->getHeight());
     clearZBuffer();
+
+    struct Color ambient = {50, 50, 50};
+    struct Color color =   {180, 180, 103};
+    Vector3f *direction, *areflect, *dreflect, *sreflect;
+    direction = new Vector3f(0.5, 0.75, 1);
+    areflect  = new Vector3f(0.1, 0.1, 0.1);
+    dreflect  = new Vector3f(0.5, 0.5, 0.5);
+    sreflect  = new Vector3f(0.7, 0.7, 0.7);
+
+    light = new Light( direction, ambient, color, areflect, dreflect, sreflect );
 }
 
 /** plot(x,y)
@@ -158,10 +171,6 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         if (col >= mat->getNumColumns() || col+2 >= mat->getNumColumns())
             break;
 
-        //struct Color p = {100, 100, 100};
-        struct Color p = {rand(), rand(), rand()};
-        setColor(p);
-
         Vector3f *p0 = mat->getColumnVector(col);
         Vector3f *p1 = mat->getColumnVector(col + 1);
         Vector3f *p2 = mat->getColumnVector(col + 2);
@@ -170,6 +179,7 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         Vector3f *d2 = Vector3f::getDelta(p0, p2);
 
         Vector3f *normal = Vector3f::getCrossProduct(d1, d2);
+        normal->normalize();
         Vector3f *view = new Vector3f(0, 0, 1);
         float normalDotView = Vector3f::getDotProduct(normal, view);
 
@@ -179,6 +189,11 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
             //setColor(p);
             continue; // Skip this triangle
         }
+
+
+        //struct Color p = {100, 100, 100};
+        struct Color p = light->getSurfaceLighting(normal, view);
+        setColor(p);
 
 
         // SCANLINE
@@ -268,47 +283,49 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
                      xright, yy, zright);
         }
 
-        // Draw the line
-        p = {0, 0, 0};
-        setColor(p);
+        
+        #if DRAW_LINES
+            // Draw the line
+            p = {0, 0, 0};
+            setColor(p);
 
-        drawLine( 
-            p0->getX(),
-            p0->getY(),
-            p0->getZ(),
-            p1->getX(),
-            p1->getY(),
-            p1->getZ()
-            //*mat->get(col, 0),
-            //*mat->get(col, 1),
-            //*mat->get(col+1, 0),
-            //*mat->get(col+1, 1)
-        );
-        drawLine(
-            p1->getX(),
-            p1->getY(),
-            p1->getZ(),
-            p2->getX(),
-            p2->getY(),
-            p2->getZ()
-            //*mat->get(col+1, 0),
-            //*mat->get(col+1, 1),
-            //*mat->get(col+2, 0),
-            //*mat->get(col+2, 1)
-        );
-        drawLine(
-            p2->getX(),
-            p2->getY(),
-            p2->getZ(),
-            p0->getX(),
-            p0->getY(),
-            p0->getZ()
-            //*mat->get(col+2, 0),
-            //*mat->get(col+2, 1),
-            //*mat->get(col, 0),
-            //*mat->get(col, 1)
-        );
-
+            drawLine( 
+                p0->getX(),
+                p0->getY(),
+                p0->getZ(),
+                p1->getX(),
+                p1->getY(),
+                p1->getZ()
+                //*mat->get(col, 0),
+                //*mat->get(col, 1),
+                //*mat->get(col+1, 0),
+                //*mat->get(col+1, 1)
+            );
+            drawLine(
+                p1->getX(),
+                p1->getY(),
+                p1->getZ(),
+                p2->getX(),
+                p2->getY(),
+                p2->getZ()
+                //*mat->get(col+1, 0),
+                //*mat->get(col+1, 1),
+                //*mat->get(col+2, 0),
+                //*mat->get(col+2, 1)
+            );
+            drawLine(
+                p2->getX(),
+                p2->getY(),
+                p2->getZ(),
+                p0->getX(),
+                p0->getY(),
+                p0->getZ()
+                //*mat->get(col+2, 0),
+                //*mat->get(col+2, 1),
+                //*mat->get(col, 0),
+                //*mat->get(col, 1)
+            );
+        #endif
         //bool switched = false;
         //for(currentY = 0; !(currentY >= dyRight && switched); currentY++) {
         //    // Offset left side if we're switched
