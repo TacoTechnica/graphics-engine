@@ -5,6 +5,10 @@ BIN_DIR = bin
 
 PROGRAM_NAME = game.out
 
+# TODO: ditch this, move them to cflags
+OBJCOMPILE_PARAMS = -std=c++0x
+EXECCOMPILE_PARAMS = $(OBJCOMPILE_PARAMS)
+
 #####################################################################
 
 CFLAGS = -lSDL2 -lSDL2main -lSDL2_image -lm
@@ -22,11 +26,11 @@ all: bin_dir_exists $(PROGRAM_NAME)
 	#display *.ppm
 
 $(PROGRAM_NAME): $(HEADERS) $(OBJS)
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(EXECCOMPILE_PARAMS)
 
 
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ $(OBJCOMPILE_PARAMS)
 
 bin_dir_exists:
 	mkdir -p $(BIN_DIR)

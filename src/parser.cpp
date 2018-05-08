@@ -1,13 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include<string.h>
-#include<unistd.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "parser.h"
 #include "matrix.h"
 #include "edgebuffer.h"
 #include "renderer.h"
 #include "image.h"
+
+#include "math.h"
+
+void custom(TriangleBuffer *buffer);
 
 // private: Whether two commands are equal
 bool eq(const char *s1, const char *s2) {
@@ -52,7 +56,7 @@ void Parser::parseFile(char *filename, Matrix *m, Renderer *renderer) {
 
         printf("line: %s\n", line);
 
-		if (line[0] == '#' || line[0] == '\n') continue;
+		if (line[0] == '#' || line[0] == '\n' || line[0] == '\r') continue;
 
         if (eq(line, "line")) {        
             fgets(line, 255, f);
@@ -215,6 +219,10 @@ void Parser::parseFile(char *filename, Matrix *m, Renderer *renderer) {
             edgeBuffer->transformPush();
             continue;
         }
+        if (eq(line, "custom")) {
+            custom(triangleBuffer);
+            continue;
+        }
 
         printf("[parser.cpp] UNIDENTIFIED COMMAND: %s\n", line);
     }
@@ -223,3 +231,54 @@ void Parser::parseFile(char *filename, Matrix *m, Renderer *renderer) {
 }
 
 
+void custom(TriangleBuffer *buffer) {
+    int gridwidthnum  = 100;
+    int gridheightnum = 100;
+    float gridwidth = 400;
+    float gridheight = 400;
+
+    float dw = gridwidth / gridwidthnum;
+    float dh = gridheight / gridheightnum;
+
+    // Set up grid
+    float **ting = (float **)malloc(gridwidthnum * sizeof(float *));
+    int xx;
+    for(xx = 0; xx < gridwidthnum; xx++) {
+        ting[xx] = (float *)malloc(gridheightnum * sizeof(float));
+    }
+
+    // Fill grid
+    int yy;
+    for(xx = 0; xx < gridwidthnum; xx++) {
+        for(yy = 0; yy < gridheightnum; yy++) {
+            float xa = (float)xx * dw;
+            float ya = (float)yy * dh;
+
+            ting[xx][yy] = 10.0f * sin(xa / 10.0f) - 10.0f * sin(ya / 10.0f);
+        }
+    }
+
+    // Fill trianglebuffer
+    for(xx = 0; xx < gridwidthnum - 1; xx++) {
+        for(yy = 0; yy < gridheightnum - 1; yy++) {
+            float upleft   = ting[xx][yy];
+            float upright  = ting[xx+1][yy];
+            float botleft  = ting[xx][yy+1];
+            float botright = ting[xx+1][yy+1];
+            buffer->addTriangle(xx*dw,(yy+1)*dh,botleft,
+                                xx*dw,yy*dh,upleft, 
+                                (xx+1)*dw,yy*dh,upright
+                                );
+            buffer->addTriangle((xx+1)*dw,yy*dh,upright, 
+                                (xx+1)*dw,(yy+1)*dh,botright,
+                                xx*dw,(yy+1)*dh,botleft
+                                );
+        }
+    }
+
+    // Clean up
+    for(xx = 0; xx < gridheightnum; xx++) {
+        free(ting[xx]);
+    }
+    free(ting);
+}

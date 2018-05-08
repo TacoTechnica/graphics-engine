@@ -1,4 +1,6 @@
 
+#include <stdio.h>
+
 #include "vector3f.h"
 
 
@@ -32,41 +34,66 @@ Vector3f *Vector3f::getDelta(Vector3f *v1, Vector3f *v2) {
                         v2->z - v1->z
                );
 }
-const Vector3f Vector3f::operator+(const Vector3f &vec) {
+
+void Vector3f::print() {
+    printf("V3f: (%.02f, %.02f, %0.2f)\n", x, y, z);
+}
+
+ Vector3f Vector3f::operator+( Vector3f &vec) {
     Vector3f *result = this->makeCopy();
     result->x += vec.x;
     result->y += vec.y;
+    result->z += vec.z;
     return *result;
 }
 
-const Vector3f Vector3f::operator-(const Vector3f &vec) {
+ Vector3f Vector3f::operator-( Vector3f &vec) {
     Vector3f *result = this->makeCopy();
     result->x -= vec.x;
     result->y -= vec.y;
+    result->z -= vec.z;
     return *result;
 }
-const Vector3f Vector3f::operator*(const float val) {
+
+ Vector3f Vector3f::operator*( float val) {
     Vector3f *result = this->makeCopy();
     result->x *= val;
     result->y *= val;
+    result->z *= val;
     return *result;
 }
 
-const Vector3f Vector3f::operator/(const float val) {
+ Vector3f Vector3f::operator/( float val) {
     Vector3f *result = this->makeCopy();
     result->x /= val;
     result->y /= val;
+    result->z /= val;
     return *result;
 }
-
 Vector3f &Vector3f::operator+=(const Vector3f &vec) {
     x += vec.x;
     y += vec.y;
+    z += vec.z;
     return *this;
 }
 
 Vector3f &Vector3f::operator-=(const Vector3f &vec) {
     x -= vec.x;
     y -= vec.y;
+    z -= vec.z;
+    return *this;
+}
+
+Vector3f &Vector3f::operator*=( float val) {
+    x *= val;
+    y *= val;
+    z *= val;
+    return *this;
+}
+
+Vector3f &Vector3f::operator/=( float val) {
+    x /= val;
+    y /= val;
+    z /= val;
     return *this;
 }
