@@ -90,6 +90,8 @@ void Matrix::growColumns(int newColumns) {
 }
 
 void Matrix::copyTo(Matrix *mat) {
+    // Resize if we're not there
+    mat->growColumns(columns);
     int col, row;
     for(col = 0; col < columns; col++) {
         for(row = 0; row < rows; row++) {
@@ -113,3 +115,7 @@ float *Matrix::get(int col, int row) {
     return &values[col][row];
 }
 
+// Gets a column, in vector form
+Vector3f *Matrix::getColumnVector(int col) {
+    return new Vector3f( *get(col, 0), *get(col, 1), *get(col, 2) );
+}

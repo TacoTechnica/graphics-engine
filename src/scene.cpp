@@ -7,11 +7,11 @@
 
 #include "scene.h"
 #include "renderer.h"
-#include "edgebuffer.h"
+#include "trianglebuffer.h"
 #include "matrix.h"
 
 
-void readObjFile(char *dir, EdgeBuffer *buffer) {
+/*void readObjFile(char *dir, EdgeBuffer *buffer) {
     char letters[80720]; // Should use stat to grab file size, but I'm lazy
 
     printf("reading and opening %s...\n", dir);
@@ -40,38 +40,49 @@ void readObjFile(char *dir, EdgeBuffer *buffer) {
             index = 0;
         }
     } 
-}
+}*/
 
 void Scene::init() {
     angle = 0;
+    Matrix *m = new Matrix(0);
+    buffer = new TriangleBuffer(m);
 
-    buffer = new EdgeBuffer();
+    shape = buffer->genSphere(0, 0, 0, 100);
 
-    readObjFile("res/Banana.objfile", buffer);
+    pos = new Vector3f(100,100,100);
+    vel = new Vector3f(0,0,0);
+    rotation = new Vector3f(0,0,0);
 }
 
 void Scene::tick() {
+    // Physics
+    *pos += *vel;
 
+    // Point Buffer
+    buffer->clearPoints();
+    buffer->transformPush(); // Assume we're on the bottom of the stack
+    buffer->translate(pos->getX(), pos->getY(), pos->getZ());
+    buffer->rotate_x(rotation->getX());
+    buffer->rotate_y(rotation->getY());
+    buffer->rotate_z(rotation->getZ());
+    buffer->addPoints(shape);
+    buffer->transformPop();
 }
 
 void Scene::render(Renderer *g) {
-
+    *rotation += Vector3f(0.1, 0, 0);
     //angle += 0.1;
 
     struct Color p = {255, 255, 0};
     g->setColor(p);
 
-    buffer->transformSetIdentity();
-    buffer->translate(-120 + (int)angle,-280,0);
-    buffer->rotate_z(180);
-
-    buffer->apply();
-
-
-    g->drawEdgeBufferLines(buffer);
+    g->drawTriangleBufferMesh(buffer);
 
 }
 
 Scene::~Scene() {
-    delete buffer;
+    delete shape;
+    delete pos;
+    delete vel;
+    delete rotation;
 }
