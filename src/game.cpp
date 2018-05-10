@@ -101,9 +101,9 @@ void render() {
     }
     */
     Renderer *g = window->getGraphics();
-
     g->setColor( (struct Color){0,0,0} );
-    g->fillRect(0,0,window->getWidth(), window->getHeight());
+    g->refill();
+    //g->fillRect(0,0,window->getWidth(), window->getHeight());
 
     scene->render(g);
 

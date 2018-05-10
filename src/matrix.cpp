@@ -119,3 +119,13 @@ float *Matrix::get(int col, int row) {
 Vector3f *Matrix::getColumnVector(int col) {
     return new Vector3f( *get(col, 0), *get(col, 1), *get(col, 2) );
 }
+
+void Matrix::clear() {
+    printf("don't use me (Matrix::clear())\n");
+    //int col;
+    //for(col = 0; col < columns; col++) {
+    //    free(values[col]);// = (float*) realloc(values[col], sizeof(float));
+    //}
+    //columns = 0;
+    //values = (float**) realloc(values, sizeof(float*));
+}

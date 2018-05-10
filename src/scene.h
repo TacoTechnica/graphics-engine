@@ -10,9 +10,10 @@ class Scene {
         TriangleBuffer *buffer;
         double angle;
 
-        Matrix *shape;
+        Matrix *shape, *prop;
 
         Vector3f *pos, *vel;
+        Vector3f *gravity;
         Vector3f *rotation;
     public:
         ~Scene();

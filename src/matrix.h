@@ -21,6 +21,7 @@ class Matrix {
         int getNumColumns() { return columns; }
         int getNumRows() { return rows; }
         void fillWithIdentity();
+        void clear();
 
         Vector3f *getColumnVector(int col);
 };

@@ -70,14 +70,14 @@ void Vector3f::print() {
     result->z /= val;
     return *result;
 }
-Vector3f &Vector3f::operator+=(const Vector3f &vec) {
+Vector3f &Vector3f::operator+=(Vector3f &vec) {
     x += vec.x;
     y += vec.y;
     z += vec.z;
     return *this;
 }
 
-Vector3f &Vector3f::operator-=(const Vector3f &vec) {
+Vector3f &Vector3f::operator-=(Vector3f &vec) {
     x -= vec.x;
     y -= vec.y;
     z -= vec.z;

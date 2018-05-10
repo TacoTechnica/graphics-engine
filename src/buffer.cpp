@@ -8,7 +8,7 @@
 Buffer::Buffer(Matrix *m) {
     points = m;
     transformations = new Stack<Matrix>();
-    
+
     Matrix *global = new Matrix(4,4);
     global->fillWithIdentity();
     transformations->push(global);
@@ -40,7 +40,7 @@ void Buffer::addPoint(float x, float y, float z) {
     *temp->get(0, 1) = y;
     *temp->get(0, 2) = z;
     *temp->get(0, 3) = 1;
-    
+
     temp->multiply(transformations->peek());
 
     // Then copy the point on to the points matrix
@@ -170,6 +170,6 @@ void Buffer::transformPop() {
 }
 
 void Buffer::clearPoints() {
-    delete points;
-    points = new Matrix(0);
+    pointCount = 0;
+    points->growColumns(0);//clear();
 }
