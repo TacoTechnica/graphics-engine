@@ -64,14 +64,20 @@ void Renderer::refill() {
 void Renderer::drawLine(int x0, int y0, float z0, int x1, int y1, float z1) {
 
     // swapping
-    int swap;
     if (x0 > x1) {
+        int swap;
+        float zswap;
+
         swap = x0;
         x0 = x1;
         x1 = swap;
         swap = y0;
         y0 = y1;
         y1 = swap;
+
+        zswap = z0;
+        z0 = z1;
+        z1 = zswap;
     }
 
     int dx = x1 - x0;
@@ -87,7 +93,7 @@ void Renderer::drawLine(int x0, int y0, float z0, int x1, int y1, float z1) {
         if (dy <= dx) {
             d = 2*a + b;
             while(x0 <= x1) {
-                float zNow = z0 + dz * (float)x0 / (float)dx;
+                float zNow = z0 + dz * (float)(x1 - x0) / (float)dx;
                 plot(x0, y0, zNow);
                 if (d > 0) {
                     y0++;
@@ -100,7 +106,7 @@ void Renderer::drawLine(int x0, int y0, float z0, int x1, int y1, float z1) {
         } else {
             d = a + 2*b;
             while(y0 <= y1) {
-                float zNow = z0 + dz * (float)y0 / (float)dy;
+                float zNow = z0 + dz * (float)(y1 - y0) / (float)dy;
                 plot(x0, y0, zNow);
                 if (d < 0) {
                     x0++;
@@ -117,7 +123,7 @@ void Renderer::drawLine(int x0, int y0, float z0, int x1, int y1, float z1) {
         if (-dy <= dx) {
             d = -2*a + b;
             while(x0 <= x1) {
-                float zNow = z0 + dz * (float)x0 / (float)dx;
+                float zNow = z0 + dz * (float)(x1 - x0) / (float)dx;
                 plot(x0, y0, zNow);
                 if (d > 0) {
                     y0--;
@@ -130,7 +136,7 @@ void Renderer::drawLine(int x0, int y0, float z0, int x1, int y1, float z1) {
         } else {
             d = -a + 2*b;
             while(y0 >= y1) {
-                float zNow = z0 + dz * (float)y0 / (float)dy;
+                float zNow = z0 + dz * (float)(y1 - y0) / (float)dy;
                 plot(x0, y0, zNow);
                 if (d < 0) {
                     x0++;
@@ -253,7 +259,7 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         float dyRight = pmid->getY() - pbot->getY();
         float dzRight = pmid->getZ() - pbot->getZ();
 
-        for(currentY = 0; currentY < dyRight; currentY++) {
+        for(currentY = 0; currentY <= dyRight; currentY++) {
             float yy = (float)currentY;
             float xleft = (dxLeft / dyLeft) * yy;
             float xright = (dxRight / dyRight) * yy;
@@ -274,7 +280,7 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         dzRight = ptop->getZ() - pmid->getZ();
 
         // TODO: Put me in a repeating loop
-        for(currentY = 0; currentY < dyRight; currentY++) {
+        for(currentY = 0; currentY <= dyRight; currentY++) {
             float yyLeft = (float)currentY + (pmid->getY() - yStart);
             float yyRight = (float)currentY;
 
