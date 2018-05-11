@@ -1,5 +1,5 @@
 
-//#include<stdio.h>
+#include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
 #include<float.h>
@@ -259,7 +259,7 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         float dyRight = pmid->getY() - pbot->getY();
         float dzRight = pmid->getZ() - pbot->getZ();
 
-        for(currentY = 0; currentY <= dyRight; currentY++) {
+        for(currentY = 0; currentY < dyRight; currentY++) {
             float yy = (float)currentY;
             float xleft = (dxLeft / dyLeft) * yy;
             float xright = (dxRight / dyRight) * yy;
@@ -280,7 +280,7 @@ void Renderer::drawTriangleBufferMesh(TriangleBuffer *buffer) {
         dzRight = ptop->getZ() - pmid->getZ();
 
         // TODO: Put me in a repeating loop
-        for(currentY = 0; currentY <= dyRight; currentY++) {
+        for(currentY = 0; currentY < dyRight; currentY++) {
             float yyLeft = (float)currentY + (pmid->getY() - yStart);
             float yyRight = (float)currentY;
 

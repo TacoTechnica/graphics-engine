@@ -44,25 +44,48 @@
 
 #define ROOM_WIDTH 640
 #define ROOM_HEIGHT 480
+
+#define K_SPRING 0.03
+#define SPHERE_RADIUS 100
+
 void Scene::init() {
 
-    angle = 0;
+    //period = 60;
+    //radius = 100;
+
+    //angle = 0;
     Matrix *m = new Matrix(0);
     buffer = new TriangleBuffer(m);
 
-    shape = buffer->genSphere(0, 0, 0, 100);
-    prop = buffer->genTorus(0, 0, 0, 30, 110 + 30);
+    shape = buffer->genSphere(0, 0, 0, SPHERE_RADIUS);
+    prop = buffer->genTorus(0, 0, 0, 30, SPHERE_RADIUS + 40);
 
-    pos = new Vector3f(100,100,100);
-    vel = new Vector3f(2,10,0);
-    gravity = new Vector3f(0, -0.3, 0);
+    pos = new Vector3f(50,100,100);
+    vel = new Vector3f(3,3,0);
     rotation = new Vector3f(0,0,0);
+    scale = new Vector3f(1, 1, 1);
+    
+    gravity = new Vector3f(0, 0, 0);
+
+    xPaused = false;
+    yPaused = false;
 }
 
 void Scene::tick() {
     // Physics
     *vel += *gravity;
-    *pos += *vel;
+
+    // If x or y are paused, dont' move in that axis
+    if (xPaused) {
+        pos->setY( pos->getY() + vel->getY() );
+    } else if (yPaused) {
+        pos->setX( pos->getX() + vel->getX() );
+    } else {
+        *pos += *vel;
+    }
+
+    //Vector3f angularvel(0.6f, 0.7f, -0.2f);
+    //*rotation += angularvel;
 
     // Point Buffer
     buffer->clearPoints();
@@ -72,8 +95,9 @@ void Scene::tick() {
     buffer->rotate_x(rotation->getX());
     buffer->rotate_y(rotation->getY());
     buffer->rotate_z(rotation->getZ());
+    buffer->scale(scale->getX(), scale->getY(), scale->getZ());
     buffer->addPoints(shape);
-    buffer->addPoints(prop);
+    //buffer->addPoints(prop);
     buffer->transformPop();
 
     //buffer->transformPush();
@@ -83,28 +107,70 @@ void Scene::tick() {
     //buffer->addPoints(prop);
     //buffer->transformPop();
 
+    float scaleX = 1, scaleY = 1;
 
-    if (pos->getX() < 100) {
-        pos->setX(100);
-        vel->setX( vel->getX() * -1 );
-    } else if (pos->getX() > ROOM_WIDTH - 100) {
-        pos->setX(ROOM_WIDTH - 100);
-        vel->setX( vel->getX() * -1 );
+    yPaused = false;
+
+    if (pos->getX() < SPHERE_RADIUS) {
+        yPaused = true;
+        float delSpring = (SPHERE_RADIUS - pos->getX());
+        Vector3f force( delSpring * K_SPRING, 0, 0);
+        *vel += force;
+
+        scaleX = 1.0f - delSpring / SPHERE_RADIUS;
+    } else if (pos->getX() > ROOM_WIDTH - SPHERE_RADIUS) {
+        yPaused = true;
+        float delSpring = SPHERE_RADIUS - (ROOM_WIDTH - pos->getX());
+        Vector3f force( delSpring * K_SPRING, 0, 0);
+        *vel -= force;
+
+        scaleX = 1.0f - delSpring / SPHERE_RADIUS;
     }
 
-    if (pos->getY() < 100) {
-        pos->setY(100);
-        vel->setY( vel->getY() * -1 );
-    } else if (pos->getY() > ROOM_HEIGHT - 100) {
-        pos->setY(ROOM_HEIGHT - 100);
-        vel->setY( vel->getY() * -1 );
+    xPaused = false;
+    if (pos->getY() < SPHERE_RADIUS) {
+        xPaused = true;
+        float delSpring = (SPHERE_RADIUS - pos->getY());
+        Vector3f force( 0, delSpring * K_SPRING, 0);
+        *vel += force;
+
+        scaleY = 1.0f - delSpring / SPHERE_RADIUS;
+    } else if (pos->getY() > ROOM_HEIGHT - SPHERE_RADIUS) {
+        xPaused = true;
+        float delSpring = SPHERE_RADIUS - (ROOM_HEIGHT - pos->getY());
+        Vector3f force( 0, delSpring * K_SPRING, 0);
+        *vel -= force;
+
+        scaleY = 1.0f - delSpring / SPHERE_RADIUS;
     }
+    
+    if (scaleX != 0 && scaleX < 1) {
+        scaleY = 1.0f / pow(scaleX, .3);
+    } else if (scaleY != 0 && scaleY < 1) {
+        scaleX = 1.0f / pow(scaleY, .3);
+    }
+
+    scale->setX(scaleX);
+    scale->setY(scaleY);
+
+    //if (pos->getX() < 100) {
+    //    pos->setX(100);
+    //    vel->setX( vel->getX() * -1 );
+    //} else if (pos->getX() > ROOM_WIDTH - 100) {
+    //    pos->setX(ROOM_WIDTH - 100);
+    //    vel->setX( vel->getX() * -1 );
+    //}
+
+    //if (pos->getY() < 100) {
+    //    pos->setY(100);
+    //    vel->setY( vel->getY() * -1 );
+    //} else if (pos->getY() > ROOM_HEIGHT - 100) {
+    //    pos->setY(ROOM_HEIGHT - 100);
+    //    vel->setY( vel->getY() * -1 );
+    //}
 }
 
 void Scene::render(Renderer *g) {
-    Vector3f angularvel(0.6f, 0.7f, -0.2f);
-    *rotation += angularvel;
-    angle += 0.1;
 
     struct Color p = {255, 255, 0};
     g->setColor(p);

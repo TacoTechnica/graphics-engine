@@ -8,13 +8,18 @@
 class Scene {
     private:
         TriangleBuffer *buffer;
-        double angle;
 
         Matrix *shape, *prop;
 
         Vector3f *pos, *vel;
         Vector3f *gravity;
         Vector3f *rotation;
+
+        Vector3f *scale;
+
+        bool yPaused, xPaused;
+        //float period;
+        //float radius;
     public:
         ~Scene();
         void init();
