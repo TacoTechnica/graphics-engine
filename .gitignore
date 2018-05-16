@@ -1,4 +1,7 @@
 
+# For copying dwsource base_c. This is temporary
+base_c
+
 # Images
 *.ppm
 *.png

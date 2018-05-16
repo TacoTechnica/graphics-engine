@@ -19,7 +19,8 @@ class Light {
     public:
         Light(Vector3f *direction, struct Color ambient, struct Color color, Vector3f *areflect, Vector3f *dreflect, Vector3f *sreflect);
         struct Color getSurfaceLighting(Vector3f *normal, Vector3f *view);
-
+        Vector3f *getDirection()  {return direction;}
+        Vector3f *getLightColor() {return lightColor;}
 };
 
 #endif

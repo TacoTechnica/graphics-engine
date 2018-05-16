@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "parser.h"
+#include "parserOld.h"
 #include "matrix.h"
 #include "edgebuffer.h"
 #include "renderer.h"
@@ -29,7 +29,7 @@ void split_args(char *line, char **args) {
     }
 }
 
-void Parser::parseFile(char *filename, Matrix *m, Renderer *renderer) {
+void ParserOld::parseFile(char *filename, Matrix *m, Renderer *renderer) {
 
     Matrix *edgeMat = new Matrix(4), 
            *triangleMat = new Matrix(4);

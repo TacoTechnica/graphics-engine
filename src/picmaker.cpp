@@ -77,7 +77,7 @@ int mainTEST() {
     return 0;
 }
 
-int main() {
+int mainOldParser() {
     Image img(500, 500);
     Renderer renderer(&img);
     Matrix matrix(4);
@@ -90,7 +90,7 @@ int main() {
     p = {0, 0, 0};
     renderer.setColor(p);
 
-	Parser::parseFile("src/script", &matrix , &renderer);
+	// Deleted: Parser::parseFile("src/script", &matrix , &renderer);
 
     //////////////////////////////////////////////////
     // End
