@@ -15,13 +15,21 @@ Renderer::Renderer(Image *img) {
     zbuffer = new Matrix(img->getWidth(), img->getHeight());
     clearZBuffer();
 
-    struct Color ambient = {50, 50, 50};
-    struct Color color =   {180, 180, 103};
+    //struct Color ambient = {50, 50, 50};
+    //struct Color color =   {180, 180, 103};
+    //Vector3f *direction, *areflect, *dreflect, *sreflect;
+    //direction = new Vector3f(0.5, 0.75, 1);
+    //areflect  = new Vector3f(0.1, 0.1, 0.1);
+    //dreflect  = new Vector3f(0.5, 0.5, 0.5);
+    //sreflect  = new Vector3f(0.7, 0.7, 0.7);
+
+    struct Color ambient = {0, 0, 0};
+    struct Color color =   {0, 0, 0};
     Vector3f *direction, *areflect, *dreflect, *sreflect;
-    direction = new Vector3f(0.5, 0.75, 1);
-    areflect  = new Vector3f(0.1, 0.1, 0.1);
-    dreflect  = new Vector3f(0.5, 0.5, 0.5);
-    sreflect  = new Vector3f(0.7, 0.7, 0.7);
+    direction = new Vector3f(0, 0, 0);
+    areflect  = new Vector3f(0, 0, 0);
+    dreflect  = new Vector3f(0, 0, 0);
+    sreflect  = new Vector3f(0, 0, 0);
 
     light = new Light( direction, ambient, color, areflect, dreflect, sreflect );
 }
@@ -372,4 +380,13 @@ void Renderer::clearZBuffer() {
             *zbuffer->get(xx,yy) = -1 * FLT_MAX;
         }
     }
+}
+
+void Renderer::setLight(Light *l) {
+    delete light;
+    light = l;
+}
+
+void Renderer::setAmbient(struct Color col) {
+    light->setAmbient(col);
 }

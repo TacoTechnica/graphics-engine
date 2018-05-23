@@ -1,7 +1,9 @@
 /* Initial C code */
 %{
 #include "y.tab.h"
-#define YY_DECL extern "C" int yylex()
+#ifndef YY_DECL
+    #define YY_DECL  extern "C" int yylex()
+#endif
 
 %}
 

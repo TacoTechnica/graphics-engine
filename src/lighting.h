@@ -21,6 +21,7 @@ class Light {
         struct Color getSurfaceLighting(Vector3f *normal, Vector3f *view);
         Vector3f *getDirection()  {return direction;}
         Vector3f *getLightColor() {return lightColor;}
+        void setAmbient(struct Color color) { this->color = color; }
 };
 
 #endif

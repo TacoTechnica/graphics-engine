@@ -29,6 +29,8 @@ class Renderer {
         void drawTriangleBufferMesh(TriangleBuffer *buffer);
 
         void clearZBuffer();
+        void setLight(Light *l);
+        void setAmbient(struct Color col);
 };
 
 #endif

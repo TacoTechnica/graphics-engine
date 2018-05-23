@@ -1,46 +1,12 @@
-#push
-#
-#move
-#-100 -100 0
-#rotate
-#x 50
-#rotate
-#y 20
-#move
-#300 500 0
-#
-#
-#custom
-#
-#display
+
+light f 1 2 3 4 5 6
+ambient 10 20 30
 
 push
 move
-150 375 0
-rotate
-x 20
-rotate
-y 70
+200 200 0
 sphere
-0 0 0 80
+0 0 0 100
 pop
-push
-move
-350 375 0
-rotate
-x 20
-rotate
-y 70
-sphere
-0 0 0 80
-pop
-push
-move
-250 150 0
-rotate
-x 25
-rotate
-z 5
-torus
-0 0 0 40 125
 display
+
