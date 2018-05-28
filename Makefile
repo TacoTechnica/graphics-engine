@@ -57,8 +57,8 @@ bin_dir_exists:
 	mkdir -p $(BIN_DIR)
 
 run: all
-	./$(PROGRAM_NAME)
-	display *.ppm
+	./mdl
+
 clean:
 	rm -f ./y.tab.c #TODO: Why is this file generated? Figure that out!
 	rm -f $(SRC_DIR)/y.tab.c $(SRC_DIR)/y.tab.h

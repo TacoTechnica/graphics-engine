@@ -12,6 +12,7 @@
 #include "renderer.h"
 #include "lighting.h"
 #include "matrix.h"
+#include "knob.h"
 
 #ifndef C_CRAP_YY
 #define C_CRAP_YY
@@ -849,8 +850,20 @@ int main(int argc, char **argv) {
   return 0;
 }
 
+// Utility function, for setting knobs
+Knob *getKnob(std::map<char *, Knob *> knobMap, SYMTAB *p) {
+    Knob *k
+    if (p != NULL) {
+        k = knobMap[ p->name ];
+        if (k->isActive(currentFrame))
+            return k;
+        return NULL;
+    }
+    return NULL;
+}
+
 // REAL main (after mdl/y parsing)
-void my_main() {  
+void my_main() {
     Image img(500, 500);
     Renderer renderer(&img);
     Matrix matrix(4);
@@ -865,8 +878,35 @@ void my_main() {
 
     char *basename = "out.ppm";
 
+    int numframes = 0;
+
+    std::map<char *, Knob *> knobMap;
+
+    // PASS 1 //
+    for (i=0;i<lastop;i++) {
+        switch (op[i].opcode) {
+    
+            case BASENAME:
+                basename = op[i].op.basename.p->name;
+                break;
+            case FRAMES:
+                numframes = op[i].op.frames.num_frames;
+                break;
+            case VARY:
+                Knob *k = new LinearKnob(op[i].op.vary.start_frame, op[i].op.vary.end_frame,
+                                   op[i].op.vary.start_val, op[i].op.vary.end_val);
+                knobMap[ op[i].op.vary.p.name ] = k;
+                break;
+
+        }
+    }
+    // PASS 2 //
+
     int i;
     for (i=0;i<lastop;i++) {
+        Knob  *currentKnob = NULL;
+        double currentFrame = i;
+
         switch (op[i].opcode) {
             case LIGHT:
                 renderer.setLight(op[i].op.light.p->s.l);
@@ -890,27 +930,46 @@ void my_main() {
                             op[i].op.box.d1[0], op[i].op.box.d1[1], op[i].op.box.d1[2]);
                 break;
             case MOVE:
-                buff.translate(op[i].op.move.d[0],op[i].op.move.d[1],op[i].op.move.d[2]);
+                currentKnob = getKnob(knobMap, op[i].op.move.p);
+                //if (op[i].op.move.p != NULL) {
+                //    currentKnob = knobMap[ op[i].op.move.p->name ];
+                //    if (!currentKnob->isActive(currentFrame))
+                //        currentKnob = NULL;
+                //}
+                if (!currentKnob)
+                    buff.translate(op[i].op.move.d[0],op[i].op.move.d[1],op[i].op.move.d[2]);
+                else {
+                    double scale = currentKnob->getValue(currentFrame);
+                    buff.translate(op[i].op.move.d[0] * scale,op[i].op.move.d[1] * scale,op[i].op.move.d[2] * scale);
+                }
                 break;
             case SCALE:
-                 buff.scale(op[i].op.scale.d[0],op[i].op.scale.d[1],op[i].op.scale.d[2]);
-                 break;
+                currentKnob = getKnob(knobMap, op[i].op.move.p);
+                if (!currentKnob)
+                    buff.scale(op[i].op.scale.d[0],op[i].op.scale.d[1],op[i].op.scale.d[2]);
+                else {
+                    double scale = currentKnob->getValue(currentFrame);
+                    buff.scale(op[i].op.scale.d[0] * scale,op[i].op.scale.d[1] * scale,op[i].op.scale.d[2] * scale);
+                }
+                break;
             case ROTATE:
                 {
+                    double degrees = op[i].op.rotate.degrees;
+                    currentKnob = getKnob(knobMap, op[i].op.move.p);
+                    if (currentKnob) {
+                        degrees *= currentKnob->getValue(currentFrame);
+                    }
                     // AXIS (0: X, 1: Y, 2: Z)
                     double whyIsThisADoubleOhRightThatsTheWayItIs = op[i].op.rotate.axis;
                     if        (whyIsThisADoubleOhRightThatsTheWayItIs == 0) {
-                        buff.rotate_x(op[i].op.rotate.degrees);
+                        buff.rotate_x(degrees);
                     } else if (whyIsThisADoubleOhRightThatsTheWayItIs == 1) {
-                        buff.rotate_y(op[i].op.rotate.degrees);
+                        buff.rotate_y(degrees);
                     } else if (whyIsThisADoubleOhRightThatsTheWayItIs == 2) {
-                        buff.rotate_z(op[i].op.rotate.degrees);
+                        buff.rotate_z(degrees);
                     }
                 break;
                 }
-            case BASENAME:
-                basename = op[i].op.basename.p->name;
-                break;
             case PUSH:
                 buff.transformPush();
                 break;
