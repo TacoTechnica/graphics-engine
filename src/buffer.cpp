@@ -8,7 +8,7 @@
 Buffer::Buffer(Matrix *m) {
     points = m;
     transformations = new Stack<Matrix>();
-    
+
     Matrix *global = new Matrix(4,4);
     global->fillWithIdentity();
     transformations->push(global);
@@ -40,7 +40,7 @@ void Buffer::addPoint(float x, float y, float z) {
     *temp->get(0, 1) = y;
     *temp->get(0, 2) = z;
     *temp->get(0, 3) = 1;
-    
+
     temp->multiply(transformations->peek());
 
     // Then copy the point on to the points matrix
@@ -72,13 +72,19 @@ void Buffer::addPoints(Matrix *m) {
 
 // Helper function for ease of use
 void Buffer::add_transform(float* trans_mat) {
+    printf("[buffer.cpp] Lemme guess 1\n");
     Matrix *trans = new Matrix(4,4, trans_mat);
+    printf("[buffer.cpp] Lemme guess 2\n");
 
     // Multiply trans mat by our current transformation, and replace
     // our current transformation mat with that new mat
-    trans->multiply(transformations->peek());
+    Matrix *top = transformations->peek();
+    trans->multiply(top);
+    printf("[buffer.cpp] Lemme guess 3\n");
     delete transformations->pop();
+    printf("[buffer.cpp] Lemme guess 4\n");
     transformations->push(trans);
+    printf("[buffer.cpp] Lemme guess 5\n");
 
     //transformations->peek()->multiply(trans);
     //delete trans;
@@ -157,9 +163,14 @@ void Buffer::rotate_z(float theta) {
 }
 
 void Buffer::transformPush() {
+    printf("[buffer.cpp] 1\n");
     Matrix *copy = new Matrix(4);
+    printf("[buffer.cpp] 2\n");
+    printf("[buffer.cpp] 2: %d\n", transformations->getSize());
     transformations->peek()->copyTo(copy);
+    printf("[buffer.cpp] 3\n");
     transformations->push(copy);
+    printf("[buffer.cpp] 4\n");
 }
 
 void Buffer::transformPop() {
@@ -167,4 +178,19 @@ void Buffer::transformPop() {
         Matrix *mat = transformations->pop();
         delete mat;
     }
+}
+
+void Buffer::clear() {
+    pointCount = 0;
+    points->growColumns(0);
+
+    transformations->empty();
+
+    //printf("[buffer.cpp] wtf 1\n");
+    Matrix *global = new Matrix(4,4);
+    //printf("[buffer.cpp] wtf 2\n");
+    global->fillWithIdentity();
+    //printf("[buffer.cpp] wtf 3\n");
+    transformations->push(global);
+    //printf("[buffer.cpp] wtf 4\n");
 }

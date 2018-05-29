@@ -1,16 +1,23 @@
 
+frames 10
+basename lmao
+
+vary anim 0 9 0 1
+
+
 light f 1 2 3 4 5 6
 ambient 10 20 30
+
 
 push
 move
 200 200 0
 rotate
-x 20
+x 180 anim
 rotate
-y 10
+y 180 anim
 sphere
 0 0 0 100
 pop
-display
 
+save

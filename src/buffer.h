@@ -29,6 +29,7 @@ class Buffer {
         void transformPop();
         int getPointCount() {return pointCount;}
         Matrix *getPoints() {return points;}
+        void clear();
 };
 
 #endif

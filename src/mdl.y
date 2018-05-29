@@ -5,6 +5,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include<map>
+
 #include "parser.h"
 #include "symtab.h"
 #include "y.tab.h"
@@ -13,6 +15,8 @@
 #include "lighting.h"
 #include "matrix.h"
 #include "knob.h"
+#include "animation.h"
+
 
 #ifndef C_CRAP_YY
 #define C_CRAP_YY
@@ -845,18 +849,24 @@ int main(int argc, char **argv) {
   yyparse();
 
   print_pcode();
+
   my_main();
 
   return 0;
 }
 
 // Utility function, for setting knobs
-Knob *getKnob(std::map<char *, Knob *> knobMap, SYMTAB *p) {
-    Knob *k
+Knob *getKnob(std::map<char *, Knob *> knobMap, SYMTAB *p, double currentFrame) {
+    Knob *k;
     if (p != NULL) {
         k = knobMap[ p->name ];
-        if (k->isActive(currentFrame))
+        if (k == NULL)
+            return NULL;
+
+        if (k->isActive(currentFrame)) { 
             return k;
+
+        }
         return NULL;
     }
     return NULL;
@@ -868,6 +878,7 @@ void my_main() {
     Renderer renderer(&img);
     Matrix matrix(4);
     TriangleBuffer buff(&matrix);
+    Animation anim;
 
     struct Color p = {255, 255, 255};
     renderer.setColor(p);
@@ -883,117 +894,151 @@ void my_main() {
     std::map<char *, Knob *> knobMap;
 
     // PASS 1 //
+    int i;
     for (i=0;i<lastop;i++) {
         switch (op[i].opcode) {
-    
+
             case BASENAME:
                 basename = op[i].op.basename.p->name;
                 break;
             case FRAMES:
                 numframes = op[i].op.frames.num_frames;
+                anim.setImageCount(numframes);
                 break;
             case VARY:
                 Knob *k = new LinearKnob(op[i].op.vary.start_frame, op[i].op.vary.end_frame,
                                    op[i].op.vary.start_val, op[i].op.vary.end_val);
-                knobMap[ op[i].op.vary.p.name ] = k;
+                knobMap[ op[i].op.vary.p->name ] = k;
                 break;
 
         }
     }
     // PASS 2 //
 
-    int i;
-    for (i=0;i<lastop;i++) {
-        Knob  *currentKnob = NULL;
-        double currentFrame = i;
+    int frame;
+    for (frame=0; frame < numframes; frame++) {
+        double currentFrame = frame;
+        
+        printf("[mdl.y] Pre refresh for new frame\n");
+    
+        struct Color p = {255, 255, 255};
+        renderer.setColor(p);
+        printf("[mdl.y] 1 for new frame\n");
+        renderer.refill();
+        printf("[mdl.y] 2 for new frame\n");
+        buff.clear();
 
-        switch (op[i].opcode) {
-            case LIGHT:
-                renderer.setLight(op[i].op.light.p->s.l);
-                break;
-            case AMBIENT:
-                {
-                double *doubleCol = op[i].op.ambient.c;
-                struct Color col = { (unsigned char) (255*doubleCol[0]), (unsigned char) (255*doubleCol[1]), (unsigned char) (255*doubleCol[2]) };
-                renderer.setAmbient(col);
-                break;
-                }
-            case SPHERE:
-                buff.addSphere(op[i].op.sphere.d[0], op[i].op.sphere.d[1], op[i].op.sphere.d[2], op[i].op.sphere.r);
-                break;
-            case TORUS:
-                buff.addTorus(op[i].op.torus.d[0], op[i].op.torus.d[1], op[i].op.torus.d[2], 
-                              op[i].op.torus.r0,  op[i].op.torus.r1);
-                break;
-            case BOX:
-                buff.addBox(op[i].op.box.d0[0], op[i].op.box.d0[1], op[i].op.box.d0[2], 
-                            op[i].op.box.d1[0], op[i].op.box.d1[1], op[i].op.box.d1[2]);
-                break;
-            case MOVE:
-                currentKnob = getKnob(knobMap, op[i].op.move.p);
-                //if (op[i].op.move.p != NULL) {
-                //    currentKnob = knobMap[ op[i].op.move.p->name ];
-                //    if (!currentKnob->isActive(currentFrame))
-                //        currentKnob = NULL;
-                //}
-                if (!currentKnob)
-                    buff.translate(op[i].op.move.d[0],op[i].op.move.d[1],op[i].op.move.d[2]);
-                else {
-                    double scale = currentKnob->getValue(currentFrame);
-                    buff.translate(op[i].op.move.d[0] * scale,op[i].op.move.d[1] * scale,op[i].op.move.d[2] * scale);
-                }
-                break;
-            case SCALE:
-                currentKnob = getKnob(knobMap, op[i].op.move.p);
-                if (!currentKnob)
-                    buff.scale(op[i].op.scale.d[0],op[i].op.scale.d[1],op[i].op.scale.d[2]);
-                else {
-                    double scale = currentKnob->getValue(currentFrame);
-                    buff.scale(op[i].op.scale.d[0] * scale,op[i].op.scale.d[1] * scale,op[i].op.scale.d[2] * scale);
-                }
-                break;
-            case ROTATE:
-                {
-                    double degrees = op[i].op.rotate.degrees;
-                    currentKnob = getKnob(knobMap, op[i].op.move.p);
-                    if (currentKnob) {
-                        degrees *= currentKnob->getValue(currentFrame);
+        printf("[mdl.y] Post refresh for new frame\n");
+
+        //int i; Already defined on Pass 1
+        for (i=0;i<lastop;i++) {
+            printf("[mdl.y] Start of ops %d\n", op[i].opcode);
+            Knob  *currentKnob = NULL;
+
+            switch (op[i].opcode) {
+                case LIGHT:
+                    renderer.setLight(op[i].op.light.p->s.l);
+                    break;
+                case AMBIENT:
+                    {
+                    double *doubleCol = op[i].op.ambient.c;
+                    struct Color col = { (unsigned char) (255*doubleCol[0]), (unsigned char) (255*doubleCol[1]), (unsigned char) (255*doubleCol[2]) };
+                    renderer.setAmbient(col);
+                    break;
                     }
-                    // AXIS (0: X, 1: Y, 2: Z)
-                    double whyIsThisADoubleOhRightThatsTheWayItIs = op[i].op.rotate.axis;
-                    if        (whyIsThisADoubleOhRightThatsTheWayItIs == 0) {
-                        buff.rotate_x(degrees);
-                    } else if (whyIsThisADoubleOhRightThatsTheWayItIs == 1) {
-                        buff.rotate_y(degrees);
-                    } else if (whyIsThisADoubleOhRightThatsTheWayItIs == 2) {
-                        buff.rotate_z(degrees);
+                case SPHERE:
+                    buff.addSphere(op[i].op.sphere.d[0], op[i].op.sphere.d[1], op[i].op.sphere.d[2], op[i].op.sphere.r);
+                    break;
+                case TORUS:
+                    buff.addTorus(op[i].op.torus.d[0], op[i].op.torus.d[1], op[i].op.torus.d[2], 
+                                  op[i].op.torus.r0,  op[i].op.torus.r1);
+                    break;
+                case BOX:
+                    buff.addBox(op[i].op.box.d0[0], op[i].op.box.d0[1], op[i].op.box.d0[2], 
+                                op[i].op.box.d1[0], op[i].op.box.d1[1], op[i].op.box.d1[2]);
+                    break;
+                case MOVE:
+                    currentKnob = getKnob(knobMap, op[i].op.move.p, currentFrame);
+                    //if (op[i].op.move.p != NULL) {
+                    //    currentKnob = knobMap[ op[i].op.move.p->name ];
+                    //    if (!currentKnob->isActive(currentFrame))
+                    //        currentKnob = NULL;
+                    //}
+                    if (!currentKnob) {
+                        printf("[mdl.y] oboi 0\n");
+                        buff.translate(op[i].op.move.d[0],op[i].op.move.d[1],op[i].op.move.d[2]);
+                    } else {
+                        printf("[mdl.y] oboi 1\n");
+                        double scale = currentKnob->getValue(currentFrame);
+                        printf("[mdl.y] oboi 2\n");
+                        buff.translate(op[i].op.move.d[0] * scale,op[i].op.move.d[1] * scale,op[i].op.move.d[2] * scale);
                     }
-                break;
-                }
-            case PUSH:
-                buff.transformPush();
-                break;
-            case POP:
-                buff.transformPop();
-                break;
-            case SAVE:
-                {
-                Image::writeToPPM( renderer.getImage(), "temp_image.ppm");
-                char *args[] = {"convert", "temp_image.ppm", basename, NULL};
-                execvp("convert", args);
-                remove("temp_image.ppm");
-                break;
-                }
-            case DISPLAY:
-                {
-                renderer.drawTriangleBufferMesh(&buff);
-                Image::writeToPPM( renderer.getImage(), "temp_image.ppm");
-                char *args1[] = {"display", "temp_image.ppm", NULL};
-                execvp("display", args1);
-                remove("temp_image.ppm");
-                break;
-                }
+                    printf("[mdl.y] oboi 3\n");
+                    break;
+                case SCALE:
+                    currentKnob = getKnob(knobMap, op[i].op.scale.p, currentFrame);
+                    if (!currentKnob)
+                        buff.scale(op[i].op.scale.d[0],op[i].op.scale.d[1],op[i].op.scale.d[2]);
+                    else {
+                        double scale = currentKnob->getValue(currentFrame);
+                        buff.scale(op[i].op.scale.d[0] * scale,op[i].op.scale.d[1] * scale,op[i].op.scale.d[2] * scale);
+                    }
+                    break;
+                case ROTATE:
+                    {
+                        double degrees = op[i].op.rotate.degrees;
+                        currentKnob = getKnob(knobMap, op[i].op.rotate.p, currentFrame);
+                        if (currentKnob) {
+                            degrees = currentKnob->getValue(currentFrame);
+                        }
+                        // AXIS (0: X, 1: Y, 2: Z)
+                        double whyIsThisADoubleOhRightThatsTheWayItIs = op[i].op.rotate.axis;
+                        if        (whyIsThisADoubleOhRightThatsTheWayItIs == 0) {
+                            buff.rotate_x(degrees);
+                        } else if (whyIsThisADoubleOhRightThatsTheWayItIs == 1) {
+                            buff.rotate_y(degrees);
+                        } else if (whyIsThisADoubleOhRightThatsTheWayItIs == 2) {
+                            buff.rotate_z(degrees);
+                        }
+                    break;
+                    }
+                case PUSH:
+                    buff.transformPush();
+                    break;
+                case POP:
+                    buff.transformPop();
+                    break;
+                case SAVE:
+                    {
+                    //anim.saveToGIF(op[i].op.save.p->name);
+                    printf("[mdl.y] BEFORE SAVE\n");
+                    anim.saveToGIF(basename);
+                    printf("[mdl.y] AFTER SAVE\n");
+
+                    //Image::writeToPPM( renderer.getImage(), "temp_image.ppm");
+                    //char *args[] = {"convert", "temp_image.ppm", basename, NULL};
+                    //execvp("convert", args);
+                    //remove("temp_image.ppm");
+                    break;
+                    }
+                case DISPLAY:
+                    {
+                    //renderer.drawTriangleBufferMesh(&buff);
+                    //Image::writeToPPM( renderer.getImage(), "temp_image.ppm");
+                    //
+                    //int f = fork();
+                    //if (f == 0) {
+                    //    char *args1[] = {"display", "temp_image.ppm", NULL};
+                    //    execvp("display", args1);
+                    //}
+                    //
+                    //remove("temp_image.ppm");
+                    break;
+                    }
+            }
         }
+        // After rendering a frame, add that frame to our animation.
+        anim.addImage(frame, (renderer.getImage()));
     }
 }
 //#include "lex.yy.c"

@@ -53,9 +53,19 @@ T *Stack<T>::pop() {
     delete top;
 
     top = newTop;
+    if (top == nullptr) {
+        head = nullptr; // TODO: Do we need head?
+    }
     size--;
 
     return obj;
+}
+
+template <class T>
+void Stack<T>::empty() {
+    while(getSize() > 0) {
+        delete pop();
+    }
 }
 
 #endif

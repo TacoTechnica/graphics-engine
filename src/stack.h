@@ -36,6 +36,7 @@ class Stack {
         T *pop();
         //void print();
         int getSize() { return size; } 
+        void empty();
 };
 
 #include "stack.cpp" // Solve linking issue with templates

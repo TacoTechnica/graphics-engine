@@ -4,14 +4,19 @@
 #include<stdio.h>
 #include<stdlib.h>
 
+
 Matrix::Matrix(int columns, int rows) {
     this->rows = rows;
     this->columns = columns;
+    //printf("[matrix.cpp] wtf 1\n");
     values = (float**) calloc( columns, sizeof(float *));
+    //printf("[matrix.cpp] wtf 2\n");
     int col;
     for(col = 0; col < columns; col++) {
         values[col] = (float*) calloc(rows, sizeof(float));
     }
+    ///printf("[matrix.cpp] wtf 3\n");
+    
 }
 
 /* Extra constructor that lets us create a matrix from a 1d array
@@ -36,6 +41,7 @@ Matrix::~Matrix() {
         free(values[col]);
     }
     free(values);
+
 }
 
 /*
@@ -81,6 +87,13 @@ void Matrix::multiply(Matrix *mat) {
 }
 
 void Matrix::growColumns(int newColumns) {
+    if (newColumns < columns) {
+        // If we need to shorten, don't forget to free our leftover columns!
+        int col;
+        for(col = columns - 1; col >= newColumns; col--) {
+            free(values[col]);
+        }
+    }
     values = (float**) realloc(values, newColumns * sizeof(float *));
     int col;
     for(col = columns; col < newColumns; col++) {

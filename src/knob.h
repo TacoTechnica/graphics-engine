@@ -15,7 +15,7 @@ class LinearKnob : public Knob {
         double start_frame, end_frame;
         double start_val,   end_val;
     public:
-        LinearKnob(double start_frame, double end_frame, double start_val, double end_val) : Knob();
+        LinearKnob(double start_frame, double end_frame, double start_val, double end_val);
         double getValue(double frame);
         bool isActive(double frame);
 };

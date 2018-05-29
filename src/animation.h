@@ -3,16 +3,18 @@
 
 #include "image.h"
 
+#define ANIMATION_FOLDER "animations"
+
 class Animation {
     private:
         Image *frames;
         int image_count;
     public:
         Animation();
-        addImage(int frame, Image image);
-        saveToPPM(char *path);
+        void addImage(int frame, Image *image);
+        void saveToGIF(char *name);
 
-        setImageCount(int image_count);
+        void setImageCount(int image_count);
 };
 
 #endif
